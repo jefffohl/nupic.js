@@ -204,3 +204,4 @@ MersenneTwister.prototype.nextInt = function(bound) {
 	return Math.floor(this.random() * bound);
 }
 
+module.exports = MersenneTwister;

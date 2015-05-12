@@ -3,6 +3,10 @@
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  */
+
+var util = require('../cipun/util.js');
+var poly = require('./polyfills.js');
+
 var ArrayUtils = {
     /** Empty array constant */
     EMPTY_ARRAY: [],
@@ -21,7 +25,7 @@ var ArrayUtils = {
 	
     GREATER_OR_EQUAL_0: function(n) {
         return n >= 0;
-    },	
+    },
 
     /**
      * Returns an array containing the successive elements of each
@@ -83,7 +87,7 @@ var ArrayUtils = {
         var len = container.length;
         
         for (var i=0; i<len; i++) {
-            if (equals(match, container[i])) {
+            if (util.equals(match, container[i])) {
                 return true;
             }
         }
@@ -806,14 +810,19 @@ var ArrayUtils = {
      * @param ar2   the array to test for the presence of elements in the first array.
      * @return  an array containing the intersections or an empty array if none are found.
      */
+
+    /* Commenting this out - it does not seem to be used anywhere.
+
     in1d: function(ar1, ar2) {	// int[](int[], int[])
         
         var set1 = new Set(ar1);
         var set2 = new Set(ar2);
         
-        var retVal = new Set([x for (x of set1) if (set2.has(x))]);
-        return [x for (x of retVal)];
+       // var retVal = new Set([x for (x of set1) if (set2.has(x))]); // this doesn't seem to make sense
+       //return [x for (x of retVal)]; // neither does this.
     },
+
+    */
     
     /**
      * Sparse or due to the arrays containing the indexes of "on bits",
@@ -1522,3 +1531,5 @@ CoordinateAssembler.prototype = {
         }
     }
 }
+
+module.exports = ArrayUtils;

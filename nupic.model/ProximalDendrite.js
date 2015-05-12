@@ -1,6 +1,10 @@
 /**
  * 
  */
+
+var Segment = require('./Segment.js');
+var Pool 	= require('./Pool.js');
+
 var ProximalDendrite = function(index) {
 	Segment.call(this);
 
@@ -130,3 +134,5 @@ ProximalDendrite.prototype.getConnectedSynapsesDense = function(c) {	// int[](Co
 ProximalDendrite.prototype.getConnectedSynapsesSparse = function(c) {	// int[](Connections)
 	return c.getPotentialPools().getObject(this.index).getSparseConnections();
 }
+
+module.exports = ProximalDendrite;

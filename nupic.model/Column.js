@@ -8,6 +8,10 @@
  * @author Ralf Seliger (port to JavaScript)
  *
  */
+
+var ProximalDendrite    = require('./ProximalDendrite.js');
+var Cell                = require('./Cell.js');
+
 var Column = function(numCells, index) {
     /**
      * Constructs a new {@code Column}
@@ -155,3 +159,5 @@ Column.prototype = {
         return "Column: idx=" + this.index;
     }
 };
+
+module.exports = Column;

@@ -287,3 +287,5 @@ SparseMatrix.prototype = {
     }
 };
 
+module.exports = SparseMatrix;
+

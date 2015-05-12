@@ -8,6 +8,11 @@
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  */
+
+var util            = require('../cipun/util.js');
+var Pool            = require('./Pool.js');
+var Segment         = require('./Segment.js');
+
 var DistalDendrite = function(cell, index) {
 	Segment.call(this);
 	
@@ -72,13 +77,13 @@ DistalDendrite.prototype.getConnectedActiveSynapses = function(activeSynapsesFor
         
     for (var s in activeSynapsesForSegment.get(this)) {
         if (s.getPermanence() >= permanenceThreshold) {
-        	if (isNullOrUndefined(connectedSynapses)) {
+        	if (util.isNullOrUndefined(connectedSynapses)) {
            		connectedSynapses = new Set();
            	}
             connectedSynapses.add(s);
         }
     }
-    return isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
+    return util.isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
 }
     
 /**
@@ -152,3 +157,5 @@ DistalDendrite.prototype.pickCellsToLearnOn = function(c, numPickCells, prevWinn
 DistalDendrite.prototype.toString = function() {	// String(void)
     return "" + this.index;
 }
+
+module.exports = DistalDendrite;

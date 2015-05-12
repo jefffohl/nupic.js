@@ -1,6 +1,10 @@
 /**
  * 
  */
+
+var SparseMatrix 	= require('./SparseMatrix.js');
+var ArrayUtils		= require('./ArrayUtils.js');
+
 var SparseBinaryMatrix = function(dimensions, useColumnMajorOrdering) {
 	SparseMatrix.call(this, dimensions, useColumnMajorOrdering);
 	
@@ -402,3 +406,5 @@ SparseBinaryMatrix.prototype.any = function() {
 		throw new Error("No matching method found for this call to any.");
 	}
 };
+
+module.exports = SparseBinaryMatrix;

@@ -11,6 +11,11 @@
  * @see Synapse
  * @see Connections
  */
+
+var util = require('../cipun/util.js');
+var ArrayUtils = require('../nupic.util/ArrayUtils.js');
+var poly = require('../nupic.util/polyfills.js');
+
 var Pool = function(size) {
 	this.size = size;
 	
@@ -52,7 +57,7 @@ Pool.prototype = {
 	 */
 	updatePool: function(c, s, permanence) {	// void(Connections, Synapse, double)
 		var inputIndex = s.getInputIndex();
-		if (isNullOrUndefined(this.synapsesBySourceIndex.get(inputIndex))) {
+		if (util.isNullOrUndefined(this.synapsesBySourceIndex.get(inputIndex))) {
 			this.synapsesBySourceIndex.set(inputIndex, s);
 		}
 		if (permanence > c.getSynPermConnected()) {
@@ -141,3 +146,5 @@ Pool.prototype = {
 		return retVal;
 	}
 }
+
+module.exports = Pool;

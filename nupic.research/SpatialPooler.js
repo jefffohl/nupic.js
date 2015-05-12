@@ -16,6 +16,13 @@
  * @author Ralf Seliger (port to JavaScript)
  *
  */
+
+var SparseObjectMatrix  = require('../nupic.util/SparseObjectMatrix.js');
+var SparseBinaryMatrix  = require('../nupic.util/SparseBinaryMatrix.js');
+var ArrayUtils          = require('../nupic.util/ArrayUtils.js');
+var util                = require('../cipun/util.js');
+var Column              = require('../nupic.model/Column.js');
+
 var SpatialPooler = function() {};
 
 SpatialPooler.prototype = {
@@ -41,7 +48,7 @@ SpatialPooler.prototype = {
     	
     	var mem = c.getMemory();
     	
-    	if (isNullOrUndefined(mem)) {
+    	if (util.isNullOrUndefined(mem)) {
     		mem = new SparseObjectMatrix(c.getColumnDimensions());
     		c.setMemory(mem);
     	} 
@@ -328,7 +335,7 @@ SpatialPooler.prototype = {
     avgConnectedSpanForColumnND: function(c, columnIndex) {	// double(Connections c, int columnIndex)
         var dimensions = c.getInputDimensions();
         var connected = c.getColumn(columnIndex).getProximalDendrite().getConnectedSynapsesSparse(c);
-        if (isNullOrUndefined(connected) || connected.length === 0) {
+        if (util.isNullOrUndefined(connected) || connected.length === 0) {
         	return 0;
         }
         
@@ -414,7 +421,7 @@ SpatialPooler.prototype = {
     	for (var i=0; i<activeColumns.length; i++) {
     		var pool = c.getPotentialPools().getObject(activeColumns[i]);
     		
-    		if (isNullOrUndefined(pool)) {
+    		if (util.isNullOrUndefined(pool)) {
     			console.log("no pool");
     		}
     		
@@ -991,3 +998,5 @@ SpatialPooler.prototype = {
     	c.setBoostFactors(boostInterim);
     }
 }
+
+module.exports = SpatialPooler;

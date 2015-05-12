@@ -1,22 +1,8 @@
-var URL = location.protocol + "//" + location.host;
+var Parameters 		= require('../nupic/Parameters.js');
+var Connections 	= require('../nupic/Connections.js');
+var SpatialPooler 	= require('../nupic.research/SpatialPooler.js');
+var ArrayUtils		= require('../nupic.util/ArrayUtils.js');
 
-importScripts(URL + "/htm.JavaScript/cipun/util.js",
-              URL + "/htm.JavaScript/nupic/Connections.js",
-              URL + "/htm.JavaScript/nupic/Parameters.js",
-              URL + "/htm.JavaScript/nupic.util/MersenneTwister.js",
-              URL + "/htm.JavaScript/nupic.util/ArrayUtils.js",
-              URL + "/htm.JavaScript/nupic.util/SparseMatrix.js",
-              URL + "/htm.JavaScript/nupic.util/SparseBinaryMatrix.js",
-              URL + "/htm.JavaScript/nupic.util/SparseObjectMatrix.js",
-              URL + "/htm.JavaScript/nupic.model/Column.js",
-              URL + "/htm.JavaScript/nupic.model/Cell.js",
-              URL + "/htm.JavaScript/nupic.model/Column.js",
-              URL + "/htm.JavaScript/nupic.model/Segment.js",
-              URL + "/htm.JavaScript/nupic.model/ProximalDendrite.js",
-              URL + "/htm.JavaScript/nupic.model/DistalDendrite.js",
-              URL + "/htm.JavaScript/nupic.model/Pool.js",
-              URL + "/htm.JavaScript/nupic.model/Synapse.js",
-              URL + "/htm.JavaScript/nupic.research/SpatialPooler.js");
 
 /**
  * A simple program that demonstrates the working of the spatial pooler
@@ -38,17 +24,17 @@ var HelloSP = function(inputDimensions, columnDimensions) {
     this.columnNumber  = 1;
     
     for (var i=0; i<inputDimensions.length; i++) {
-    	this.inputSize *= inputDimensions[i];
+    	this.inputSize *= inputDimensions[i]; // 32 * 32 = 1024. This is the size of the input vector? Why do we have two numbers? Why not just one?
     }	
 
     for (var i=0; i<columnDimensions.length; i++) {
-    	this.columnNumber *= columnDimensions[i];
+    	this.columnNumber *= columnDimensions[i]; // 64 * 64 = 4096. This is the size of the region. Why is this different than the inputSize?
     }
 
-	this.activeArray = new Array(this.columnNumber);
-	this.activeArray.fill(0);
+	this.activeArray = new Array(this.columnNumber); // the active columns is an array of length 4096.
+	this.activeArray.fill(0); // fill the array with values of 0.
     
-    this.parameters = new Parameters();
+    this.parameters = new Parameters(); // new Parameters object. 
 	var p = this.parameters.getSpatialDefaultParameters();
 
     p['INPUT_DIMENSIONS']                = inputDimensions;
@@ -61,8 +47,8 @@ var HelloSP = function(inputDimensions, columnDimensions) {
 
     this.sp = new SpatialPooler();
     this.mem = new Connections();
-    this.parameters.apply(p, this.mem);       
-    this.sp.init(this.mem);
+    this.parameters.apply(p, this.mem);     // apply these parameters to the Connection object.  
+    this.sp.init(this.mem);					// init the spatial pooler.
 };
 
 HelloSP.prototype = {
@@ -70,7 +56,7 @@ HelloSP.prototype = {
 	 * Create a random input vector
 	 */
 	createInput: function() {	// void(void)
-	    postMessage("<p>--------------------------------Creating a random input vector---------------------------------</p>");
+	    console.log("--------------------------------Creating a random input vector---------------------------------");
 	    
 	    this.inputArray = new Array(this.inputSize);
 	    this.inputArray.fill(0);
@@ -79,23 +65,30 @@ HelloSP.prototype = {
 	        // nextInt(2) returns 0 or 1
 	        this.inputArray[i] = Math.floor(Math.random() * 2);
 	    }
+
 	},
 	
 	/**
 	 * Run the spatial pooler with the input vector
 	 */
 	run: function() {	// void(void)
-	    postMessage("<p>--------------------------------------Computing the SDR----------------------------------------</p>");
+	    console.log("--------------------------------------Computing the SDR----------------------------------------");
+
+	    // the mem is the memory, or Connections object. I think this holds the state of the region.
+	    // the inputArray is an array of 1024 random bits (0 or 1).
+	    // the activeArray is an array of the columns that are active. It consists of 0s and 1s. In this instance, it is 4096 in length, and at the beginning, all bits are 0.
+	    // the fourth argument is a boolean for learning.
+	    // the fifth argument is a boolean for "stripNeverLearned". I don't know what that is right now.
 	    
 	    this.sp.compute(this.mem, this.inputArray, this.activeArray, true, true);
 	    
 	    var res = ArrayUtils.where(this.activeArray, function(n) {
 	    												return n > 0;
 	    											 });
-	    postMessage("<p>" + res.toString() + "</p>");
+	   console.log(res.toString());
 		
 		if (arguments[0] === "done") {
-			postMessage("done");
+			console.log("done");
 		}
 	},
 	
@@ -113,9 +106,9 @@ HelloSP.prototype = {
 	
 	main: function(args) {	// void(String[])
 	    // Lesson 1
-	    postMessage("<p></p><p>Following columns represent the SDR<br /> \
-					 Different set of columns each time since we randomize the input<br /> \
-					 Lesson - different input vectors give different SDRs</p><p></p>");
+	    console.log("Following columns represent the SDR",
+					"Different set of columns each time since we randomize the input",
+					"Lesson - different input vectors give different SDRs");
 	    
 	    //Trying random vectors
 	    for (var i=0; i<3; i++) {
@@ -124,10 +117,10 @@ HelloSP.prototype = {
 	    }
 	    
 	    //Lesson 2
-	    postMessage("<p></p><p>Identical SDRs because we give identical inputs<br /> \
-				     Lesson - identical inputs give identical SDRs</p><p></p>");
+	    console.log("Identical SDRs because we give identical inputs",
+				     "Lesson - identical inputs give identical SDRs");
 
-	    postMessage("<p>--------------------------------Using identical input vectors----------------------------------</p>");
+	    console.log("--------------------------------Using identical input vectors----------------------------------");
 	
 	    //Trying identical vectors
 	    for (var i=0; i<2; i++) {
@@ -135,20 +128,20 @@ HelloSP.prototype = {
 	    }
 	    
 	    // Lesson 3
-	    postMessage("<p></p><p>Now we are changing the input vector slightly.<br /> \
-				     We change a small percentage of 1s to 0s and 0s to 1s.<br /> \
-				     The resulting SDRs are similar, but not identical to the original SDR<br /> \
-					 Lesson - Similar input vectors give similar SDRs</p><p></p>");
+	    console.log("Now we are changing the input vector slightly.",
+				    "We change a small percentage of 1s to 0s and 0s to 1s.",
+				    "The resulting SDRs are similar, but not identical to the original SDR",
+					"Lesson - Similar input vectors give similar SDRs");
 	
 	    // Adding 10% noise to the input vector
 	    // Notice how the output SDR hardly changes at all
-	    postMessage("<p>---------------------------After adding 10% noise to the input vector--------------------------</p>");
+	    console.log("---------------------------After adding 10% noise to the input vector--------------------------");
 	    this.addNoise(0.1);
 	    this.run();
 	
 	    // Adding another 20% noise to the already modified input vector
 	    // The output SDR should differ considerably from that of the previous output
-	    postMessage("<p>-----------------------After adding another 20% noise to the input vector----------------------</p>");
+	    console.log("-----------------------After adding another 20% noise to the input vector----------------------");
 	    this.addNoise(0.2);
 	    this.run("done");
 	}

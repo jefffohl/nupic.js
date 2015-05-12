@@ -1,6 +1,11 @@
 /**
  * 
  */
+
+var MersenneTwister = require('../nupic.util/MersenneTwister.js');
+
+
+
 var Parameters = function() {
 	this.KEY_MAP = {
 		'seed':                            'seed',
@@ -37,13 +42,13 @@ var Parameters = function() {
 	};
 
 	this.DEFAULTS_ALL = {
-		'seed': 42
+		'seed': 42 // why 42? I am guessing a reference to Hitchhiker's Guide.
 	};
 	
-	var mt = new MersenneTwister(this.DEFAULTS_ALL['seed']);
+	var mt = new MersenneTwister(this.DEFAULTS_ALL['seed']); // random number generator.
 	
 	this.DEFAULTS_ALL['random'] = function() {
-		return mt.nextDouble();
+		return mt.nextDouble(); // a random number
 	};
 
 	this.DEFAULTS_TEMPORAL = {
@@ -80,6 +85,8 @@ var Parameters = function() {
 	    'MAX_BOOST':                       10.0,
 	    'SP_VERBOSITY':                    0
 	};
+
+	// copy the spatial and temporal defaults to DEFAULTS_ALL
 	
 	for (var key in this.DEFAULTS_TEMPORAL) {
 		this.DEFAULTS_ALL[key] = this.DEFAULTS_TEMPORAL[key];
@@ -104,8 +111,12 @@ Parameters.prototype = {
 	},
 	
 	apply: function(p, c) {
+		// p is a Parameter object and c is a Connection object.
+		// this function therefore sets the parameters of the Connection object.
 		for (var key in p) {
 			c[this.KEY_MAP[key]] = p[key];
 		}
 	}
 };
+
+module.exports = Parameters;

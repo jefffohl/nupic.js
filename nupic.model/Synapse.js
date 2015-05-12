@@ -19,6 +19,9 @@
  * @see DistalDendrite
  * @see TemporalMemory.Connections
  */
+
+var util = require('../cipun/util.js');
+
 var Synapse = function(c, sourceCell, segment, pool, index, inputIndex) {	// Synapse(Connections, Cell, Segment, Pool, int, int) 
     /**
      * Constructs a new {@code Synapse}
@@ -38,7 +41,7 @@ var Synapse = function(c, sourceCell, segment, pool, index, inputIndex) {	// Syn
     this.permanence = 0;
         
     // If this isn't a synapse on a proximal dendrite
-    if(!isNullOrUndefined(sourceCell)) {
+    if(!util.isNullOrUndefined(sourceCell)) {
      	sourceCell.addReceptorSynapse(c, this);
     }
 };
@@ -100,3 +103,5 @@ Synapse.prototype = {    /**
         return "" + this.synapseIndex;
     }
 }
+
+module.exports = Synapse;

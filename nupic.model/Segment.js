@@ -7,6 +7,9 @@
  * @see DistalDendrite
  * @see ProximalDendrite
  */
+
+var Synapse = require('./Synapse.js');
+
 var Segment = function() {};
 
 Segment.prototype = {
@@ -36,4 +39,6 @@ Segment.prototype = {
         syns.push(s);
         return s;
     }
-}
+};
+
+module.exports = Segment;

@@ -14,6 +14,9 @@
  * @param dimensions					the dimensions of this array
  * @param useColumnMajorOrdering		where inner index increments most frequently
  */
+
+var SparseMatrix = require('./SparseMatrix.js');
+
 var SparseObjectMatrix = function(dimensions, useColumnMajorOrdering) {
 	SparseMatrix.call(this, dimensions, useColumnMajorOrdering);
 	
@@ -97,4 +100,6 @@ SparseObjectMatrix.prototype.getSparseIndices = function() {	// int[](void)
 SparseObjectMatrix.prototype.toString = function() {	// String(void)
 	return this.dimensions.toString();
 };
+
+module.exports = SparseObjectMatrix;
 

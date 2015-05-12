@@ -5,6 +5,9 @@
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  */
+
+var DistalDendrite = require('./DistalDendrite.js');
+
 var Cell = function(column, index) {
     /**
      * Constructs a new {@code Cell} object
@@ -102,4 +105,6 @@ Cell.prototype = {
     	}
         return 0;
     }
-}
+};
+
+module.exports = Cell;
