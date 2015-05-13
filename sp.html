@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>HTM Spatial Pooler Demo</title>
+<title>HelloSP: HTM Spatial Pooler Demo</title>
 <meta charset="UTF-8">
 <meta name="author" content="Ralf Seliger">
 <meta name="description" content="This program uses a JavaScript web worker to run a HTM spatial pooler demo">
@@ -26,15 +26,24 @@ window.onload = function() {
 			}
 		};
 		
-		spWorker.postMessage("");
+		spWorker.onerror = function(event) {
+			document.getElementById("error").innerHTML = event.message + " (" + event.filename + ":" + event.lineno + ")";
+			this.terminate();
+			clearInterval(timer);
+		};
+		
+		spWorker.postMessage({
+			url: window.location.protocol + "//" + window.location.host + window.location.pathname
+		});
 	} else {
 		document.getElementById("progress").innerHTML = "Sorry, but this JavaScript program requires Firefox.";
 	}
 }
 </script>
 </head>
-<body>
+<body style="font-family:monospace;">
 <div id="progress"></div>
 <div id="result"></div>
+<div id="error" style="color:#ff0000; font-weight:bold;"></div>
 </body>
 </html>

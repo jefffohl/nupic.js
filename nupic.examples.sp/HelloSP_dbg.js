@@ -1,9 +1,3 @@
-var Parameters 		= require('../nupic/Parameters.js');
-var Connections 	= require('../nupic/Connections.js');
-var SpatialPooler 	= require('../nupic.research/SpatialPooler.js');
-var ArrayUtils		= require('../nupic.util/ArrayUtils.js');
-var util            = require('../cipun/util.js');
-
 /**
  * A simple program that demonstrates the working of the spatial pooler
  * 
@@ -45,11 +39,8 @@ var HelloSP = function(inputDimensions, columnDimensions) {
     p['SYN_PERM_TRIM_THRESHOLD'] = 0.005;
 
     this.sp = new SpatialPooler();
-
-    console.log("Setting up connections");
     this.mem = new Connections();
     this.parameters.apply(p, this.mem);
-    console.log("Initializing spatial pooler (this will take some time)");
     this.sp.init(this.mem);
 };
 
@@ -58,7 +49,7 @@ HelloSP.prototype = {
      * Create a random input vector
      */
     createInput: function() { // void(void)
-        console.log("--------------------------------Creating a random input vector---------------------------------");
+        console.log("Creating a random input vector");
 
         this.inputArray = newArray([this.inputSize], 0);
 
@@ -72,18 +63,14 @@ HelloSP.prototype = {
      * Run the spatial pooler with the input vector
      */
     run: function() { // void(void)
-        console.log("--------------------------------------Computing the SDR----------------------------------------");
+        console.log("Computing the SDR");
 
         this.sp.compute(this.mem, this.inputArray, this.activeArray, true, true);
 
         var res = ArrayUtils.where(this.activeArray, function(n) {
             return n > 0;
         });
-        console.log("" + res.toString() + "");
-
-        if (arguments[0] === "done") {
-            console.log("done");
-        }
+        console.log(res.toString());
     },
 
     /**
@@ -101,9 +88,9 @@ HelloSP.prototype = {
     main: function(args) { // void(String[])
 
         // Lesson 1
-        console.log("Following columns represent the SDR",
-                     "Different set of columns each time since we randomize the input",
-                     "Lesson - different input vectors give different SDRs");
+        console.log("Following columns represent the SDR");
+        console.log("Different set of columns each time since we randomize the input");
+        console.log("Lesson - different input vectors give different SDRs");
 
         //Trying random vectors
         for (var i = 0; i < 3; i++) {
@@ -112,10 +99,10 @@ HelloSP.prototype = {
         }
 
         //Lesson 2
-        console.log("Identical SDRs because we give identical inputs",
-                     "Lesson - identical inputs give identical SDRs");
+        console.log("Identical SDRs because we give identical inputs");
+        console.log("Lesson - identical inputs give identical SDRs");
 
-        console.log("--------------------------------Using identical input vectors----------------------------------");
+        console.log("Using identical input vectors");
 
         //Trying identical vectors
         for (var i = 0; i < 2; i++) {
@@ -123,59 +110,25 @@ HelloSP.prototype = {
         }
 
         // Lesson 3
-        console.log("Now we are changing the input vector slightly."
-                     "We change a small percentage of 1s to 0s and 0s to 1s."
-                     "The resulting SDRs are similar, but not identical to the original SDR"
-                     "Lesson - Similar input vectors give similar SDRs");
+        console.log("Now we are changing the input vector slightly.");
+        console.log("We change a small percentage of 1s to 0s and 0s to 1s.");
+        console.log("The resulting SDRs are similar, but not identical to the original SDR");
+        console.log("Lesson - Similar input vectors give similar SDRs");
 
         // Adding 10% noise to the input vector
         // Notice how the output SDR hardly changes at all
-        console.log("---------------------------After adding 10% noise to the input vector--------------------------");
+        console.log("After adding 10% noise to the input vector");
         this.addNoise(0.1);
         this.run();
 
         // Adding another 20% noise to the already modified input vector
         // The output SDR should differ considerably from that of the previous output
-        console.log("-----------------------After adding another 20% noise to the input vector----------------------");
+        console.log("After adding another 20% noise to the input vector");
         this.addNoise(0.2);
-        this.run("done");
+        this.run();
     }
 };
 
 var example = new HelloSP([32, 32], [64, 64]);
 
 example.main([]);
-
-/*
-
-onmessage = function(event) {
-    var url = event.data.url;
-
-    if (url.charAt(url.length - 1) !== "/") {
-        url = url.slice(0, url.lastIndexOf("/") + 1);
-    }
-
-    importScripts(url + "cipun/util.js",
-        url + "nupic/Connections.js",
-        url + "nupic/Parameters.js",
-        url + "nupic.util/MersenneTwister.js",
-        url + "nupic.util/ArrayUtils.js",
-        url + "nupic.util/SparseMatrix.js",
-        url + "nupic.util/SparseBinaryMatrix.js",
-        url + "nupic.util/SparseObjectMatrix.js",
-        url + "nupic.model/Column.js",
-        url + "nupic.model/Cell.js",
-        url + "nupic.model/Column.js",
-        url + "nupic.model/Segment.js",
-        url + "nupic.model/ProximalDendrite.js",
-        url + "nupic.model/DistalDendrite.js",
-        url + "nupic.model/Pool.js",
-        url + "nupic.model/Synapse.js",
-        url + "nupic.research/SpatialPooler.js");
-
-    var example = new HelloSP([32, 32], [64, 64]);
-
-    example.main([]);
-};
-
-*/

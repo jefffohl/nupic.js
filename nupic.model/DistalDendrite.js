@@ -14,11 +14,11 @@ var Pool            = require('./Pool.js');
 var Segment         = require('./Segment.js');
 
 var DistalDendrite = function(cell, index) {
-	Segment.call(this);
-	
-	this.cell = cell;
-	this.index = index;
-	this.EMPTY_SYNAPSE_SET = new Set();
+    Segment.call(this);
+
+    this.cell = cell;
+    this.index = index;
+    this.EMPTY_SYNAPSE_SET = new Set();
 };
 
 DistalDendrite.prototype = Object.create(Segment.prototype);
@@ -28,10 +28,10 @@ DistalDendrite.prototype.constructor = DistalDendrite;
  * Returns the owner {@link Cell} 
  * @return
  */
-DistalDendrite.prototype.getParentCell = function() {	// Cell(void)
+DistalDendrite.prototype.getParentCell = function() { // Cell(void)
     return this.cell;
 }
-	
+
 /**
  * Creates and returns a newly created {@link Synapse} with the specified
  * source cell, permanence, and index.
@@ -43,23 +43,23 @@ DistalDendrite.prototype.getParentCell = function() {	// Cell(void)
  * 
  * @return
  */
-DistalDendrite.prototype.createSynapse = function(c, sourceCell, permanence, index) {	// Synapse(Connections, Cell, double, int)
+DistalDendrite.prototype.createSynapse = function(c, sourceCell, permanence, index) { // Synapse(Connections, Cell, double, int)
     var pool = new Pool(1);
-    var s = Segment.prototype.createSynapse.call(this, (c, c.getSynapses(this), sourceCell, pool, index, sourceCell.getIndex()));   	
+    var s = Segment.prototype.createSynapse.call(this, (c, c.getSynapses(this), sourceCell, pool, index, sourceCell.getIndex()));
     pool.setPermanence(c, s, permanence);
     return s;
 }
-			
+
 /**
  * Returns all {@link Synapse}s
  * 
  * @param   c   the connections state of the temporal memory
  * @return
  */
-DistalDendrite.prototype.getAllSynapses = function(c) {	// List<Synapse>(Connections)
+DistalDendrite.prototype.getAllSynapses = function(c) { // List<Synapse>(Connections)
     return c.getSynapses(this);
 }
-    
+
 /**
  * Returns the synapses on a segment that are active due to lateral input
  * from active cells.
@@ -68,24 +68,30 @@ DistalDendrite.prototype.getAllSynapses = function(c) {	// List<Synapse>(Connect
  * @param permanenceThreshold
  * @return
  */
-DistalDendrite.prototype.getConnectedActiveSynapses = function(activeSynapsesForSegment, permanenceThreshold) {	// Set<Synapse>(Map<DistalDendrite, Set<Synapse>>, double)
+DistalDendrite.prototype.getConnectedActiveSynapses = function(activeSynapsesForSegment, permanenceThreshold) { // Set<Synapse>(Map<DistalDendrite, Set<Synapse>>, double)
     var connectedSynapses = null;
-        
+
     if (!activeSynapsesForSegment.has(this)) {
         return this.EMPTY_SYNAPSE_SET;
     }
-        
+
     for (var s in activeSynapsesForSegment.get(this)) {
         if (s.getPermanence() >= permanenceThreshold) {
-        	if (util.isNullOrUndefined(connectedSynapses)) {
+<<<<<<< HEAD
+        	if (isNullOrUndefined(connectedSynapses)) {
            		connectedSynapses = new Set();
            	}
+=======
+            if (isNullOrUndefined(connectedSynapses)) {
+                connectedSynapses = new Set();
+            }
+>>>>>>> upstream/master
             connectedSynapses.add(s);
         }
     }
-    return util.isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
+    return isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
 }
-    
+
 /**
  * Called for learning {@code Segment}s so that they may
  * adjust the permanences of their synapses.
@@ -97,22 +103,22 @@ DistalDendrite.prototype.getConnectedActiveSynapses = function(activeSynapsesFor
  * @param permanenceIncrement   the increment by which permanences are increased.
  * @param permanenceDecrement   the increment by which permanences are decreased.
  */
-DistalDendrite.prototype.adaptSegment = function(c, activeSynapses, permanenceIncrement, permanenceDecrement) {	// void(Connections, Set<Synapse>, double, double)
-    for (var i=0; i<c.getSynapses(this).length; i++) {
-    	var synapse = c.getSynapses(this)[i];
+DistalDendrite.prototype.adaptSegment = function(c, activeSynapses, permanenceIncrement, permanenceDecrement) { // void(Connections, Set<Synapse>, double, double)
+    for (var i = 0; i < c.getSynapses(this).length; i++) {
+        var synapse = c.getSynapses(this)[i];
         var permanence = synapse.getPermanence();
         if (activeSynapses.has(synapse)) {
             permanence += permanenceIncrement;
         } else {
             permanence -= permanenceDecrement;
         }
-            
+
         permanence = Math.max(0, Math.min(1.0, permanence));
-            
+
         synapse.setPermanence(c, permanence);
     }
 }
-    
+
 /**
  * Returns a {@link Set} of previous winner {@link Cell}s which aren't already attached to any
  * {@link Synapse}s owned by this {@code Segment}
@@ -123,38 +129,38 @@ DistalDendrite.prototype.adaptSegment = function(c, activeSynapses, permanenceIn
  * @param random            the random number generator
  * @return                  a {@link Set} of previous winner {@link Cell}s which aren't already attached to any
  *                          {@link Synapse}s owned by this {@code Segment}
-*/
-DistalDendrite.prototype.pickCellsToLearnOn = function(c, numPickCells, prevWinners, random) {	// Set<Cell>(Connections, int, Set<Cell>, Random)
+ */
+DistalDendrite.prototype.pickCellsToLearnOn = function(c, numPickCells, prevWinners, random) { // Set<Cell>(Connections, int, Set<Cell>, Random)
     //Create a list of cells that aren't already synapsed to this segment
     var candidates = new Set(prevWinners);
-    for (var i=0; i<c.getSynapses(this).length; i++) {
-     	var synapse = c.getSynapses(this)[i];
+    for (var i = 0; i < c.getSynapses(this).length; i++) {
+        var synapse = c.getSynapses(this)[i];
         var sourceCell = synapse.getSourceCell();
         if (candidates.has(sourceCell)) {
             candidates.delete(sourceCell);
         }
     }
-        
+
     numPickCells = Math.min(numPickCells, candidates.size);
     var cands = Array.from(candidates);
     cands.sort(function(a, b) {
-     	return a.compareTo(b);
+        return a.compareTo(b);
     });
-        
+
     var cells = new Set();
-    for (var x=0; x<numPickCells; x++) {
+    for (var x = 0; x < numPickCells; x++) {
         var i = random.nextInt(cands.size);
         cells.add(cands[i]);
         cands.splice(i, 1);
     }
-        
+
     return cells;
 }
-    
+
 /**
  * {@inheritDoc}
  */
-DistalDendrite.prototype.toString = function() {	// String(void)
+DistalDendrite.prototype.toString = function() { // String(void)
     return "" + this.index;
 }
 

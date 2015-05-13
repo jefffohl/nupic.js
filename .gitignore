@@ -1,3 +1,8 @@
+.metadata
+.settings
+.project
+misc
+sync.ffs_db
 .DS_Store
 *.sublime-workspace
 node_modules
