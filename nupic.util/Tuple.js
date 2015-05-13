@@ -12,7 +12,7 @@
  */
 var Tuple = function() { // Tuple(Object...)
     /** The internal container array */
-    this.container = newArray([arguments.length]);
+    this.container = util.newArray([arguments.length]);
 
     for (var i = 0; i < arguments.length; i++) {
         this.container[i] = arguments[i];
@@ -57,7 +57,7 @@ Tuple.prototype = {
     hashCode: function() { // int(void)
         var prime = 31;
         var result = 1;
-        result = prime * result + HashCode.value(this.container);
+        result = prime * result + util.HashCode.value(this.container);
         return result;
     },
 
@@ -72,7 +72,7 @@ Tuple.prototype = {
         if (typeof this !== typeof obj)
             return false;
         var other = obj;
-        if (!equals(this.container, other.container))
+        if (!util.equals(this.container, other.container))
             return false;
         return true;
     }

@@ -1135,16 +1135,16 @@ Connections.prototype = {
      *                  {@link Synapse}s.   
      */
     getReceptorSynapses: function(cell) { // Set<Synapse>(Cell)
-        if (isNullOrUndefined(cell)) {
+        if (util.isNullOrUndefined(cell)) {
             throw new Error("Illegal Argument: Cell was null, undefined or empty.");
         }
 
-        if (isNullOrUndefined(this.receptorSynapses)) {
+        if (util.isNullOrUndefined(this.receptorSynapses)) {
             this.receptorSynapses = new Map(); //new WeakMap();
         }
 
         var retVal = this.receptorSynapses.get(cell);
-        if (isNullOrUndefined(retVal)) {
+        if (util.isNullOrUndefined(retVal)) {
             retVal = new Set();
             this.receptorSynapses.set(cell, retVal);
         }
@@ -1159,16 +1159,16 @@ Connections.prototype = {
      * @return          the mapping of {@link Cell}s to their {@link DistalDendrite}s.
      */
     getSegments: function(cell) { // List<DistalDendrite>(Cell) 
-        if (isNullOrUndefined(cell)) {
+        if (util.isNullOrUndefined(cell)) {
             throw new Error("Illegal Argument: Cell was null, undefined or empty.");
         }
 
-        if (isNullOrUndefined(this.segments)) {
+        if (util.isNullOrUndefined(this.segments)) {
             this.segments = new Map(); //new WeakMap();
         }
 
         var retVal = this.segments.get(cell);
-        if (isNullOrUndefined(retVal)) {
+        if (util.isNullOrUndefined(retVal)) {
             retVal = [];
             this.segments.set(cell, retVal);
         }
@@ -1183,16 +1183,16 @@ Connections.prototype = {
      * @return          the mapping of {@link DistalDendrite}s to their {@link Synapse}s.
      */
     getSynapses: function(segment) { // List<Synapse>(DistalDendrite)
-        if (isNullOrUndefined(segment)) {
+        if (util.isNullOrUndefined(segment)) {
             throw new Error("Illegal Argument: Segment was null or undefined.");
         }
 
-        if (isNullOrUndefined(this.synapses)) {
+        if (util.isNullOrUndefined(this.synapses)) {
             this.synapses = new Map(); //new WeakMap();
         }
 
         var retVal = this.synapses.get(segment);
-        if (isNullOrUndefined(retVal)) {
+        if (util.isNullOrUndefined(retVal)) {
             retVal = [];
             this.synapses.set(segment, retVal);
         }

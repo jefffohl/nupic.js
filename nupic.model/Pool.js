@@ -57,7 +57,7 @@ Pool.prototype = {
      */
     updatePool: function(c, s, permanence) { // void(Connections, Synapse, double)
         var inputIndex = s.getInputIndex();
-        if (isNullOrUndefined(this.synapsesBySourceIndex.get(inputIndex))) {
+        if (util.isNullOrUndefined(this.synapsesBySourceIndex.get(inputIndex))) {
             this.synapsesBySourceIndex.set(inputIndex, s);
         }
         if (permanence > c.getSynPermConnected()) {
@@ -91,7 +91,7 @@ Pool.prototype = {
      * @return
      */
     getSparsePermanences: function() { // double[](void)
-        var retVal = newArray([this.size], 0);
+        var retVal = util.newArray([this.size], 0);
         var keys = Array.from(synapsesBySourceIndex.keys());
         for (var x = 0, j = size - 1; x < size; x++, j--) {
             retVal[j] = this.synapsesBySourceIndex.get(keys[x]).getPermanence();
@@ -107,7 +107,7 @@ Pool.prototype = {
      * @return
      */
     getDensePermanences: function(c) { // double[](Connections)
-        var retVal = newArray([c.getNumInputs()], 0);
+        var retVal = util.newArray([c.getNumInputs()], 0);
         var keys = Array.from(this.synapsesBySourceIndex.keys());
         for (var i = 0; i < keys.length; i++) {
             var inputIndex = keys[i];
@@ -135,7 +135,7 @@ Pool.prototype = {
      * @return
      */
     getDenseConnections: function(c) { // int[](Connections)
-        var retVal = newArray([c.getNumInputs()], 0);
+        var retVal = util.newArray([c.getNumInputs()], 0);
         for (var i = 0; i < Array.from(this.synapseConnections).length; i++) {
             var inputIndex = Array.from(this.synapseConnections)[i];
             retVal[inputIndex] = 1;

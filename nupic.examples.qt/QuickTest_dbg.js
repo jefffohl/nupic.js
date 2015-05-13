@@ -29,8 +29,8 @@ var QuickTest = {
         var parameters = new Parameters();
         var p = parameters.getAllDefaultParameters();
 
-        p['INPUT_DIMENSIONS'] = newArray([8], 0);
-        p['COLUMN_DIMENSIONS'] = newArray([20], 0);
+        p['INPUT_DIMENSIONS'] = util.newArray([8], 0);
+        p['COLUMN_DIMENSIONS'] = util.newArray([20], 0);
         p['CELLS_PER_COLUMN'] = 6;
 
         //SpatialPooler specific

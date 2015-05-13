@@ -4,6 +4,7 @@
 
 var SparseMatrix 	= require('./SparseMatrix.js');
 var ArrayUtils		= require('./ArrayUtils.js');
+var util            = require('../cipun/util.js');
 
 var SparseBinaryMatrix = function(dimensions, useColumnMajorOrdering) {
     SparseMatrix.call(this, dimensions, useColumnMajorOrdering);
@@ -19,8 +20,8 @@ var SparseBinaryMatrix = function(dimensions, useColumnMajorOrdering) {
         cols = dimensions[1];
     }
 
-    this.backingArray = newArray([rows, cols], 0);
-    this.trueCounts = newArray([dimensions[0]], 0);
+    this.backingArray = util.newArray([rows, cols], 0);
+    this.trueCounts = util.newArray([dimensions[0]], 0);
 };
 
 SparseBinaryMatrix.prototype = Object.create(SparseMatrix.prototype);
@@ -269,7 +270,7 @@ SparseBinaryMatrix.prototype.or = function() {
      */
     var orByMatrix = function(inputMatrix) { // SparseBinaryMatrix(SparseBinaryMatrix)
         var mask = inputMatrix.getSparseIndices();
-        var ones = newArray([mask.length], 1);
+        var ones = util.newArray([mask.length], 1);
         return that.set(mask, ones);
     };
 
@@ -282,7 +283,7 @@ SparseBinaryMatrix.prototype.or = function() {
      * @return  this matrix
      */
     var orByVector = function(onBitIndexes) { // SparseBinaryMatrix(TIntCollection) or SparseBinaryMatrix(int[])
-        var ones = newArray([onBitIndexes.length], 1);
+        var ones = util.newArray([onBitIndexes.length], 1);
         return that.set(onBitIndexes, ones);
     }
 

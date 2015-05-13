@@ -25,7 +25,7 @@ var HelloSP = function(inputDimensions, columnDimensions) {
         this.columnNumber *= columnDimensions[i];
     }
 
-    this.activeArray = newArray([this.columnNumber], 0);
+    this.activeArray = util.newArray([this.columnNumber], 0);
 
     this.parameters = new Parameters();
     var p = this.parameters.getSpatialDefaultParameters();
@@ -51,7 +51,7 @@ HelloSP.prototype = {
     createInput: function() { // void(void)
         console.log("Creating a random input vector");
 
-        this.inputArray = newArray([this.inputSize], 0);
+        this.inputArray = util.newArray([this.inputSize], 0);
 
         for (var i = 0; i < this.inputSize; i++) {
             // nextInt(2) returns 0 or 1

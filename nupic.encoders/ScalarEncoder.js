@@ -185,7 +185,7 @@ ScalarEncoder.prototype.init = function() { // void(void)
     //nInternal represents the output area excluding the possible padding on each side
     this.setNInternal(this.getN() - 2 * this.getPadding());
 
-    if (isNullOrUndefined(this.getName())) {
+    if (util.isNullOrUndefined(this.getName())) {
         if ((this.getMinVal() % this.getMinVal()) > 0 ||
             (this.getMaxVal() % this.getMaxVal()) > 0) {
             this.setName("[" + this.getMinVal() + ":" + this.getMaxVal() + "]");
@@ -373,7 +373,7 @@ ScalarEncoder.prototype.encodeIntoArray = function(input, output) { // void(Doub
     }
 
     var bucketVal = this.getFirstOnBit(input);
-    if (!isNullOrUndefined(bucketVal)) {
+    if (!util.isNullOrUndefined(bucketVal)) {
         var bucketIdx = bucketVal;
         output.fill(0);
         var minbin = bucketIdx;
@@ -418,10 +418,10 @@ ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeR
     // For now, we simply assume any top-down output greater than 0
     // is ON. Eventually, we will probably want to incorporate the strength
     // of each top-down output.
-    if (isNullOrUndefined(encoded) || encoded.length < 1) {
+    if (util.isNullOrUndefined(encoded) || encoded.length < 1) {
         return null;
     }
-    var tmpOutput = copyOf(encoded);
+    var tmpOutput = util.copyOf(encoded);
 
     // ------------------------------------------------------------------------
     // First, assume the input pool is not sampled 100%, and fill in the
@@ -431,7 +431,7 @@ ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeR
     // Search for portions of the output that have "holes"
     var maxZerosInARow = this.getHalfWidth();
     for (var i = 0; i < this.maxZerosInARow; i++) {
-        var searchStr = newArray(i + 3, 1);
+        var searchStr = util.newArray(i + 3, 1);
         ArrayUtils.setRangeTo(searchStr, 1, -1, 0);
         var subLen = searchStr.length;
 
@@ -440,13 +440,13 @@ ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeR
             for (var j = 0; j < this.getN(); j++) {
                 var outputIndices = ArrayUtils.range(j, j + subLen);
                 outputIndices = ArrayUtils.modulo(outputIndices, this.getN());
-                if (equals(searchStr, ArrayUtils.sub(tmpOutput, outputIndices))) {
+                if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, outputIndices))) {
                     ArrayUtils.setIndexesTo(tmpOutput, outputIndices, 1);
                 }
             }
         } else {
             for (var j = 0; j < this.getN() - subLen + 1; j++) {
-                if (equals(searchStr, ArrayUtils.sub(tmpOutput, ArrayUtils.range(j, j + subLen)))) {
+                if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, ArrayUtils.range(j, j + subLen)))) {
                     ArrayUtils.setRangeTo(tmpOutput, j, j + subLen, 1);
                 }
             }
@@ -552,7 +552,7 @@ ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeR
     var desc = this.generateRangeDescription(ranges);
     var fieldName;
     // Return result
-    if (!isNullOrUndefined(parentFieldName) && !(parentFieldName.length === 0)) {
+    if (!util.isNullOrUndefined(parentFieldName) && !(parentFieldName.length === 0)) {
         fieldName = parentFieldName + "." + this.getName();
     } else {
         fieldName = this.getName();
@@ -597,7 +597,7 @@ ScalarEncoder.prototype.generateRangeDescription = function(ranges) { // String(
  */
 ScalarEncoder.prototype.getTopDownMapping: function() { // SparseObjectMatrix<int[]>(void)
 
-    if (isNullOrUndefined(this.topDownMapping)) {
+    if (util.isNullOrUndefined(this.topDownMapping)) {
         //The input scalar value corresponding to each possible output encoding
         if (this.isPeriodic()) {
             this.setTopDownValues(
@@ -617,7 +617,7 @@ ScalarEncoder.prototype.getTopDownMapping: function() { // SparseObjectMatrix<in
     this.setTopDownMapping(topDownMapping);
 
     var topDownValues = this.getTopDownValues();
-    var outputSpace = newArray(this.getN(), 0);
+    var outputSpace = util.newArray(this.getN(), 0);
     var minVal = this.getMinVal();
     var maxVal = this.getMaxVal();
     for (var i = 0; i < numCategories; i++) {
@@ -625,7 +625,7 @@ ScalarEncoder.prototype.getTopDownMapping: function() { // SparseObjectMatrix<in
         value = Math.max(value, minVal);
         value = Math.min(value, maxVal);
         this.encodeIntoArray(value, outputSpace);
-        this.topDownMapping.set(i, copyOf(outputSpace, outputSpace.length));
+        this.topDownMapping.set(i, util.copyOf(outputSpace, outputSpace.length));
     }
 
     return topDownMapping;
@@ -660,7 +660,7 @@ ScalarEncoder.prototype.getScalars = function(d) { // <S> TDoubleList(S)
  *        bucket.
  */
 ScalarEncoder.prototype.getBucketValues = function(t) { // <S> List<S>(Class<S>)
-    if (isNullOrUndefined(bucketValues)) {
+    if (util.isNullOrUndefined(bucketValues)) {
         var topDownMapping = this.getTopDownMapping();
         var numBuckets = topDownMapping.getMaxIndex() + 1;
         bucketValues = [];

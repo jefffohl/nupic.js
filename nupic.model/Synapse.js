@@ -41,7 +41,7 @@ var Synapse = function(c, sourceCell, segment, pool, index, inputIndex) { // Syn
     this.permanence = 0;
 
     // If this isn't a synapse on a proximal dendrite
-    if (!isNullOrUndefined(sourceCell)) {
+    if (!util.isNullOrUndefined(sourceCell)) {
         sourceCell.addReceptorSynapse(c, this);
     }
 };

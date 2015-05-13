@@ -77,19 +77,13 @@ DistalDendrite.prototype.getConnectedActiveSynapses = function(activeSynapsesFor
 
     for (var s in activeSynapsesForSegment.get(this)) {
         if (s.getPermanence() >= permanenceThreshold) {
-<<<<<<< HEAD
-        	if (isNullOrUndefined(connectedSynapses)) {
-           		connectedSynapses = new Set();
-           	}
-=======
-            if (isNullOrUndefined(connectedSynapses)) {
+            if (util.isNullOrUndefined(connectedSynapses)) {
                 connectedSynapses = new Set();
             }
->>>>>>> upstream/master
             connectedSynapses.add(s);
         }
     }
-    return isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
+    return util.isNullOrUndefined(connectedSynapses) ? this.EMPTY_SYNAPSE_SET : connectedSynapses;
 }
 
 /**

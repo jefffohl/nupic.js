@@ -11,6 +11,7 @@
 
 var ProximalDendrite    = require('./ProximalDendrite.js');
 var Cell                = require('./Cell.js');
+var util                = require('../cipun/util.js');
 
 var Column = function(numCells, index) {
     /**
@@ -24,7 +25,7 @@ var Column = function(numCells, index) {
     /** Configuration of cell count */
     this.numCells = numCells; // int
 
-    this.cells = newArray([numCells], null); // Cell[]
+    this.cells = util.newArray([numCells], null); // Cell[]
     for (var i = 0; i < numCells; i++) {
         this.cells[i] = new Cell(this, i);
     }

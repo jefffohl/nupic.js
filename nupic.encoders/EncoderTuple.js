@@ -19,11 +19,11 @@
 var EncoderTuple = function(name, e, offset) { // EncoderTuple(String, Encoder<?>, int)
     Tuple.call(this, [name, e, offset]);
 
-    if (isNullOrUndefined(name)) {
+    if (util.isNullOrUndefined(name)) {
         throw new Error("Can't instantiate an EncoderTuple " +
             " with a null or undefined Name");
     }
-    if (isNullOrUndefined(e)) {
+    if (util.isNullOrUndefined(e)) {
         throw new Error("Can't instantiate an EncoderTuple " +
             " with a null or undefined Encoder");
     }

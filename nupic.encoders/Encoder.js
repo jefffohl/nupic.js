@@ -392,19 +392,19 @@ Encoder.prototype = {
          * 					was used to encode.
          */
         addEncoder: function(parent, name, child, offset) { // void(Encoder<T>, String, Encoder<T>, int)
-            if (isNullOrUndefined(this.encoders)) {
+            if (util.isNullOrUndefined(this.encoders)) {
                 this.encoders = new Map(); //new WeakMap();
             }
 
             var key = this.getEncoderTuple(parent);
             // Insert a new Tuple for the parent if not yet added.
-            if (isNullOrUndefined(key)) {
+            if (util.isNullOrUndefined(key)) {
                 key = new EncoderTuple("", this, 0);
                 this.encoders.set(key, []);
             }
 
             var childEncoders = this.encoders.get(key);
-            if (isNullOrUndefined(childEncoders)) {
+            if (util.isNullOrUndefined(childEncoders)) {
                 childEncoders = [];
                 this.encoders.set(key, childEncoders);
             }
@@ -417,12 +417,12 @@ Encoder.prototype = {
          * @return		the {@link Tuple} containing the specified {@link Encoder}
          */
         getEncoderTuple: function(e) { // EncoderTuple(Encoder<T>)
-            if (isNullOrUndefined(this.encoders)) {
+            if (util.isNullOrUndefined(this.encoders)) {
                 this.encoders = new Map(); //new WeakMap();
             }
 
             for (var tuple in this.encoders.keys()) {
-                if (tuple.getEncoder().equals(e)) {
+                if (tuple.getEncoder().util.equals(e)) {
                     return tuple;
                 }
             }
@@ -449,7 +449,7 @@ Encoder.prototype = {
              * @return
              */
             var getEncodersFromVoid = function() { // Map<EncoderTuple, List<EncoderTuple>>(void)
-                if (isNullOrUndefined(that.encoders)) {
+                if (util.isNullOrUndefined(that.encoders)) {
                     that.encoders = new Map(); // new WeakMap();
                 }
                 return that.encoders;
@@ -484,13 +484,13 @@ Encoder.prototype = {
          * @return	List<FieldMetaType>
          */
         getFlattenedFieldTypeList: function(e) { // List<FieldMetaType>(Encoder<T>)
-            if (isNullOrUndefined(this.decoderFieldTypes)) {
+            if (util.isNullOrUndefined(this.decoderFieldTypes)) {
                 this.decoderFieldTypes = new Map(); // new WeakMap();
             }
 
             var key = this.getEncoderTuple(e);
             var fieldTypes = this.decoderFieldTypes.get(key);
-            if ((isNullOrUndefined(fieldTypes)) {
+            if ((util.isNullOrUndefined(fieldTypes)) {
                     fieldTypes = [];
                     this.decoderFieldTypes.set(key, fieldTypes);
                 }
@@ -593,7 +593,7 @@ Encoder.prototype = {
                  * @return	an array with the encoded representation of inputData
                  */
                 encode: function(inputData) { // int[](T)
-                    var output = newArray(this.getN(), 0);
+                    var output = util.newArray(this.getN(), 0);
                     this.encodeIntoArray(inputData, output);
                     return output;
                 },
@@ -609,12 +609,12 @@ Encoder.prototype = {
                  */
                 getScalarNames: function(parentFieldName) { // List<String>(String)
                     var names = [];
-                    if (!isNullOrUndefined(this.getEncoders()) {
+                    if (!util.isNullOrUndefined(this.getEncoders()) {
                             var encoders = this.getEncoders(this);
                             for (var tuple in encoders) {
                                 var subNames = tuple.get(1)).getScalarNames(this.getName());
                             var hierarchicalNames = [];
-                            if (!isNullOrUndefined(parentFieldName)) {
+                            if (!util.isNullOrUndefined(parentFieldName)) {
                                 for (var name in subNames) {
                                     hierarchicalNames.push(parentFieldName + "." + name));
                             }
@@ -624,7 +624,7 @@ Encoder.prototype = {
                         }
                     }
                 } else {
-                    if (!isNullOrUndefined(parentFieldName)) {
+                    if (!util.isNullOrUndefined(parentFieldName)) {
                         names.push(parentFieldName);
                     } else {
                         names.push(this.getEncoderTuple(this).get(0));
@@ -641,7 +641,7 @@ Encoder.prototype = {
          * @return
          */
         getDecoderOutputFieldTypes: function() { // List<FieldMetaType>(void)
-            if (!isNullOrUndefined(this.getFlattenedFieldTypeList()) {
+            if (!util.isNullOrUndefined(this.getFlattenedFieldTypeList()) {
                     return this.getFlattenedFieldTypeList();
                 }
 
@@ -685,7 +685,7 @@ Encoder.prototype = {
                     var encoders = [];
 
                     var registeredList = this.getEncoders(this);
-                    if (!isNullOrUndefined(registeredList) && registeredList.length !== 0) {
+                    if (!util.isNullOrUndefined(registeredList) && registeredList.length !== 0) {
                         for (var t in registeredList) {
                             var subEncoders = t.get(1)).getEncoderList();
                         for (var subEncoder in subEncoders) {
@@ -725,7 +725,7 @@ Encoder.prototype = {
             var retVals = [];
             var inputData = d;
             var encoders = this.getEncoders(this);
-            if (!isNullOrUndefined(encoders)) {
+            if (!util.isNullOrUndefined(encoders)) {
                 for (var t in encoders) {
                     values = t.getEncoder().getScalars(inputData);
                     for (var value in values) {
@@ -755,7 +755,7 @@ Encoder.prototype = {
         getEncodedValues: function(inputData) { // <S> List<String>(S)
             var retVals = [];
             var encoders = this.getEncoders();
-            if (!isNullOrUndefined(encoders) && encoders.length > 0) {
+            if (!util.isNullOrUndefined(encoders) && encoders.length > 0) {
                 for (var t in encoders.keys()) {
                     for (var v in t.getEncoder().getEncodedValues(inputData)
                         retVals.push(v);
@@ -779,7 +779,7 @@ Encoder.prototype = {
         getBucketIndices: function(input) { // int[](String) or int[](double)
             var l = [];
             var encoders = this.getEncoders();
-            if (!isNullOrUndefined(encoders) && encoders.length > 0) {
+            if (!util.isNullOrUndefined(encoders) && encoders.length > 0) {
                 for (var t in encoders.keys()) {
                     for (var v in t.getEncoder().getBucketIndices(input)) {
                         l.push(v));
@@ -802,7 +802,7 @@ Encoder.prototype = {
      * @return string representation of scalar values
      */
     scalarsToStr: function(scalarValues, scalarNames) { // String(List<?>, List<String>)
-        if (isNullOrUndefined(scalarNames) || scalarNames.length === 0) {
+        if (util.isNullOrUndefined(scalarNames) || scalarNames.length === 0) {
             scalarNames = this.getScalarNames("");
         }
 
@@ -878,7 +878,7 @@ return new Tuple(prevFieldName, bitOffset - prevFieldOffset);
  * @param prefix
  */
 pprintHeader: function(prefix) { // void(String)
-        this.LOGGER.info(isNullOrUndefined(prefix) ? "" : prefix);
+        this.LOGGER.info(util.isNullOrUndefined(prefix) ? "" : prefix);
 
         var description = this.getDescription();
         description.push(new Tuple("end", this.getWidth()));
@@ -907,7 +907,7 @@ pprintHeader: function(prefix) { // void(String)
      * @param prefix
      */
     pprint: function(output, prefix) { // void(int[], String)
-        this.LOGGER.info(isNullOrUndefined(prefix) ? "" : prefix);
+        this.LOGGER.info(util.isNullOrUndefined(prefix) ? "" : prefix);
 
         var description = this.getDescription();
         description.push(new Tuple("end", this.getWidth()));
@@ -987,7 +987,7 @@ decode: function(encoded, parentFieldName) { // Tuple(int[], String)
     var fieldsMap = new Map(); // new WeakMap();
     var fieldsOrder = [];
 
-    var parentName = isNullOrUndefined(parentFieldName) || parentFieldName.length === 0 ?
+    var parentName = util.isNullOrUndefined(parentFieldName) || parentFieldName.length === 0 ?
         this.getName() : parentFieldName + "." + this.getName());
 
 var encoders = this.getEncoders(this);
@@ -1075,7 +1075,7 @@ decodedToStr: function(decodeResults) { // String(Tuple)
         for (var encoderTuple in this.getEncoders(this)) {
             var nextBucketOffset = -1;
             var childEncoders = this.getEncoders(encoderTuple.getEncoder());
-            if (!isNullOrUndefined(childEncoders)) {
+            if (!util.isNullOrUndefined(childEncoders)) {
                 nextBucketOffset = bucketOffset + childEncoders.length;
             } else {
                 nextBucketOffset = bucketOffset + 1;
@@ -1156,7 +1156,7 @@ decodedToStr: function(decodeResults) { // String(Tuple)
 
         //Fallback closenss is a percentage match
         var encoders = this.getEncoders(this);
-        if (isNullOrUndefined(encoders) || encoders.length < 1) {
+        if (util.isNullOrUndefined(encoders) || encoders.length < 1) {
             var err = Math.abs(expValues[0] - actValues[0]);
             var closeness = -1;
             if (fractional) {
@@ -1200,7 +1200,7 @@ decodedToStr: function(decodeResults) { // String(Tuple)
      * @return
      */
     rightVecProd: function(matrix, encoded) { // int[](SparseObjectMatrix<int[]>, int[])
-        var retVal = newArray([matrix.getMaxIndex() + 1], 0);
+        var retVal = util.newArray([matrix.getMaxIndex() + 1], 0);
         for (var i = 0; i < retVal.length; i++) {
             var slice = matrix.getObject(i);
             for (var j = 0; j < slice.length; j++) {
@@ -1228,7 +1228,7 @@ decodedToStr: function(decodeResults) { // String(Tuple)
     },
 
     Builder.prototype.build: function() {
-        if (isNullOrUndefined(encoder)) {
+        if (util.isNullOrUndefined(encoder)) {
             throw new Error("Subclass did not instantiate builder type " +
                 "before calling this method!");
         }

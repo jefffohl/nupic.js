@@ -46,7 +46,7 @@ SpatialPooler.prototype = {
     initMatrices: function(c) { // void(Connections c)
         var mem = c.getMemory();
 
-        if (isNullOrUndefined(mem)) {
+        if (util.isNullOrUndefined(mem)) {
             mem = new SparseObjectMatrix(c.getColumnDimensions());
             c.setMemory(mem);
         }
@@ -68,18 +68,18 @@ SpatialPooler.prototype = {
 
         c.setConnectedMatrix(new SparseBinaryMatrix([numColumns, numInputs]));
 
-        var tieBreaker = newArray([numColumns], 0);
+        var tieBreaker = util.newArray([numColumns], 0);
         for (var i = 0; i < numColumns; i++) {
             tieBreaker[i] = 0.01 * c.getRandom().nextDouble();
         }
         c.setTieBreaker(tieBreaker);
 
         //Initialize state meta-management statistics
-        c.setOverlapDutyCycles(newArray([numColumns], 0));
-        c.setActiveDutyCycles(newArray([numColumns], 0));
-        c.setMinOverlapDutyCycles(newArray([numColumns], 0));
-        c.setMinActiveDutyCycles(newArray([numColumns], 0));
-        c.setBoostFactors(newArray([numColumns], 1));
+        c.setOverlapDutyCycles(util.newArray([numColumns], 0));
+        c.setActiveDutyCycles(util.newArray([numColumns], 0));
+        c.setMinOverlapDutyCycles(util.newArray([numColumns], 0));
+        c.setMinActiveDutyCycles(util.newArray([numColumns], 0));
+        c.setBoostFactors(util.newArray([numColumns], 1));
     },
 
     /**
@@ -265,8 +265,8 @@ SpatialPooler.prototype = {
      *                          the sparse set of columns which survived inhibition
      */
     updateDutyCycles: function(c, overlaps, activeColumns) { // void(Connections c, int[] overlaps, int[] activeColumns)
-        var overlapArray = newArray([c.getNumColumns()], 0);
-        var activeArray = newArray([c.getNumColumns()], 0);
+        var overlapArray = util.newArray([c.getNumColumns()], 0);
+        var activeArray = util.newArray([c.getNumColumns()], 0);
         ArrayUtils.greaterThanXThanSetToY(overlaps, 0, 1);
         if (activeColumns.length > 0) {
             ArrayUtils.setIndexesTo(activeArray, activeColumns, 1);
@@ -320,12 +320,12 @@ SpatialPooler.prototype = {
     avgConnectedSpanForColumnND: function(c, columnIndex) { // double(Connections c, int columnIndex)
         var dimensions = c.getInputDimensions();
         var connected = c.getColumn(columnIndex).getProximalDendrite().getConnectedSynapsesSparse(c);
-        if (isNullOrUndefined(connected) || connected.length === 0) {
+        if (util.isNullOrUndefined(connected) || connected.length === 0) {
             return 0;
         }
 
-        var maxCoord = newArray([c.getInputDimensions().length], -1);
-        var minCoord = newArray([c.getInputDimensions().length], ArrayUtils.max(dimensions));
+        var maxCoord = util.newArray([c.getInputDimensions().length], -1);
+        var minCoord = util.newArray([c.getInputDimensions().length], ArrayUtils.max(dimensions));
         var inputMatrix = c.getInputMatrix();
         for (var i = 0; i < connected.length; i++) {
             maxCoord = ArrayUtils.maxBetween(maxCoord, inputMatrix.computeCoordinates(connected[i]));
@@ -375,8 +375,8 @@ SpatialPooler.prototype = {
      * @return
      */
     avgColumnsPerInput: function(c) { // double(Connections c)
-        var colDim = copyOf(c.getColumnDimensions());
-        var inputDim = copyOf(c.getInputDimensions());
+        var colDim = util.copyOf(c.getColumnDimensions());
+        var inputDim = util.copyOf(c.getInputDimensions());
         var columnsPerInput = ArrayUtils.divide(colDim, inputDim, 0, 0);
         return ArrayUtils.average(columnsPerInput);
     },
@@ -398,7 +398,7 @@ SpatialPooler.prototype = {
     adaptSynapses: function(c, inputVector, activeColumns) { // void(Connections c, int[] inputVector, int[] activeColumns)
         var inputIndices = ArrayUtils.where(inputVector, ArrayUtils.INT_GREATER_THAN_0);
 
-        var permChanges = newArray([c.getNumInputs()], -1 * c.getSynPermInactiveDec());
+        var permChanges = util.newArray([c.getNumInputs()], -1 * c.getSynPermInactiveDec());
         ArrayUtils.setIndexesTo(permChanges, inputIndices, c.getSynPermActiveInc());
         for (var i = 0; i < activeColumns.length; i++) {
             var pool = c.getPotentialPools().getObject(activeColumns[i]);
@@ -608,7 +608,7 @@ SpatialPooler.prototype = {
             pick.add(potentialPool[randIdx]);
         }
 
-        var perm = newArray([c.getNumInputs()], 0);
+        var perm = util.newArray([c.getNumInputs()], 0);
         for (var i = 0; i < potentialPool.length; i++) {
             var idx = parseInt(potentialPool[i]);
             if (pick.has(idx)) {
@@ -739,7 +739,7 @@ SpatialPooler.prototype = {
 
         for (var i = 0; i < dimensions.length; i++) {
             var range = ArrayUtils.range(columnCoords[i] - inhibitionRadius, columnCoords[i] + inhibitionRadius + 1);
-            var curRange = newArray([range.length], 0);
+            var curRange = util.newArray([range.length], 0);
 
             if (wrapAround) {
                 for (var j = 0; j < curRange.length; j++) {
@@ -756,7 +756,7 @@ SpatialPooler.prototype = {
 
         var neighborList = ArrayUtils.dimensionsToCoordinateList(dimensionCoords);
         // Alternative begin (To change remove/add "//")
-        //var neighbors = newArray([neighborList.length], 0);
+        //var neighbors = util.newArray([neighborList.length], 0);
         var neighbors = []; // To be able to use push here and in mapPotential which is closer to the Java implementation
         // Alternative end
         var size = neighborList.length;
@@ -816,7 +816,7 @@ SpatialPooler.prototype = {
      * @return
      */
     calculateOverlap: function(c, inputVector) { // int[](Connections c, int[] inputVector)
-        var overlaps = newArray([c.getNumColumns()], 0);
+        var overlaps = util.newArray([c.getNumColumns()], 0);
         c.getConnectedCounts().rightVecSumAtNZ(inputVector, overlaps);
         ArrayUtils.lessThanXThanSetToY(overlaps, Math.floor(c.getStimulusThreshold()), 0);
         return overlaps;
@@ -845,7 +845,7 @@ SpatialPooler.prototype = {
      * @return
      */
     inhibitColumns: function(c, overlaps) { // int[](Connections c, double[] overlaps)
-        overlaps = copyOf(overlaps);
+        overlaps = util.copyOf(overlaps);
 
         var density;
         var inhibitionArea;
@@ -906,7 +906,7 @@ SpatialPooler.prototype = {
      */
     inhibitColumnsLocal: function(c, overlaps, density) { // int[](Connections c, double[] overlaps, double density)
         var numCols = c.getNumColumns();
-        var activeColumns = newArray([numCols], 0);
+        var activeColumns = util.newArray([numCols], 0);
         var addToWinners = ArrayUtils.max(overlaps) / 1000.0;
         for (var i = 0; i < numCols; i++) {
             var maskNeighbors = this.getNeighborsND(c, i, c.getMemory(), c.getInhibitionRadius(), false);
@@ -956,7 +956,7 @@ SpatialPooler.prototype = {
         if (mask.length < 1) {
             boostInterim = c.getBoostFactors();
         } else {
-            var numerator = newArray([c.getNumColumns()], 1 - c.getMaxBoost());
+            var numerator = util.newArray([c.getNumColumns()], 1 - c.getMaxBoost());
             boostInterim = ArrayUtils.divide(numerator, minActiveDutyCycles, 0, 0);
             boostInterim = ArrayUtils.multiply(boostInterim, activeDutyCycles, 0, 0);
             boostInterim = ArrayUtils.d_add(boostInterim, c.getMaxBoost());
