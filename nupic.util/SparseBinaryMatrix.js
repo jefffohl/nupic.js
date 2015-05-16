@@ -51,7 +51,6 @@ SparseBinaryMatrix.prototype.back = function(val, coordinates) { // void(int, in
  */
 SparseBinaryMatrix.prototype.getSlice = function(coordinates) { // Object(int...)
     var slice = this.backingArray;
-
     if (Array.isArray(coordinates)) {
         for (var i = 0; i < coordinates.length; i++) {
             var s = slice[coordinates[i]];
@@ -61,7 +60,6 @@ SparseBinaryMatrix.prototype.getSlice = function(coordinates) { // Object(int...
         var s = slice[coordinates];
         slice = Array.isArray(s) ? s : s;
     }
-
     //Ensure return value is of type Array
     if (!Array.isArray(slice)) {
         throw new Error("This method only returns the array holding the specified index: " +
@@ -88,7 +86,6 @@ SparseBinaryMatrix.prototype.rightVecSumAtNZ = function(inputVector, results) { 
 };
 
 SparseBinaryMatrix.prototype.set = function() {
-
     var that = this;
 
     /**
@@ -215,7 +212,7 @@ SparseBinaryMatrix.prototype.clearStatistics = function(row) { // void(int)
  * @return
  */
 SparseBinaryMatrix.prototype.values = function() { // int[](void)
-    return Array.from(this.sparseMap.values());
+    return ArrayUtils.iterable2Array(this.sparseMap.values());
 };
 
 SparseBinaryMatrix.prototype.getIntValue = function() {
@@ -253,7 +250,7 @@ SparseBinaryMatrix.prototype.getIntValue = function() {
  * @return  a sorted array of occupied indexes.
  */
 SparseBinaryMatrix.prototype.getSparseIndices = function() { // int[](void)
-    return this.reverse(Array.from(this.sparseMap.keys()));
+    return this.reverse(ArrayUtils.iterable2Array(this.sparseMap.keys()));
 };
 
 SparseBinaryMatrix.prototype.or = function() {

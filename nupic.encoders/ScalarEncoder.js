@@ -112,6 +112,7 @@
  * @author metaware
  * @author Ralf Seliger (port to JavaScript)
  */
+
 var ScalarEncoder = function() {
     Encoder.call(this);
 };

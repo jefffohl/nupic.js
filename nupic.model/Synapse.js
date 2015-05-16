@@ -103,4 +103,6 @@ Synapse.prototype = {
     toString: function() { // String(void)
         return "" + this.synapseIndex;
     }
-}
+};
+
+module.exports = Synapse;

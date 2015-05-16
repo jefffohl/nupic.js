@@ -64,7 +64,7 @@ SparseObjectMatrix.prototype.set = function() {
  * @return
  */
 SparseObjectMatrix.prototype.values = function() { // T[](void)
-    return Array.from(this.sparseMap.values());
+    return ArrayUtils.iterable2Array(this.sparseMap.values());
 };
 
 /**
@@ -91,7 +91,7 @@ SparseObjectMatrix.prototype.get = function(coordinates) { // T(int...)
  * @return  a sorted array of occupied indexes.
  */
 SparseObjectMatrix.prototype.getSparseIndices = function() { // int[](void)
-    return this.reverse(Array.from(this.sparseMap.keys()));
+    return this.reverse(ArrayUtils.iterable2Array(this.sparseMap.keys()));
 };
 
 /**

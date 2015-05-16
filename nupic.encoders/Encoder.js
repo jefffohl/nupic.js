@@ -38,6 +38,7 @@
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  */
+
 var Encoder = function() {
     this.LOGGER = LoggerFactory.getLogger(); // Logger
 

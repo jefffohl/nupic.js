@@ -1,6 +1,6 @@
 {
   "name": "htm.JavaScript",
-  "description": "Hierarchical Temporal Memory in Javascript using node.js.",
+  "description": "Hierarchical Temporal Memory in Javascript using io.js.",
   "author": {
     "name": "Jeff Fohl",
     "email": "jeff@fohl.com"
@@ -13,9 +13,11 @@
   },
   "license": "GPL-3.0",
   "engines": {
-    "node": "~0.12.2"
+    "io": "~2.0.1"
   },
-  "dependencies": {},
+  "dependencies": {
+
+  },
   "devDependencies": {
     "colors": "~1.1.0",
     "gulp": "^3.8.11",

@@ -898,11 +898,19 @@ var ArrayUtils = {
      */
     unique: function(nums) { // int[](int[])
         var set = new Set(nums);
-        result = Array.from(set);
+        var result = this.iterable2Array(set);
         result.sort(function(a, b) {
             return a - b;
         });
         return result;
+    },
+
+    iterable2Array : function(iterable) {
+        var arr = [];
+        for (var i of iterable) {
+            arr.push(i);
+        }
+        return arr;
     },
 
     /**
@@ -951,6 +959,8 @@ var ArrayUtils = {
 
     sample: function() {
 
+        var that = this;
+
         /**
          * Returns a random, sorted, and  unique array of the specified sample size of
          * selections from the specified list of choices.
@@ -970,7 +980,7 @@ var ArrayUtils = {
                 }
                 temp.add(choices[randomIdx]);
             }
-            var al = Array.from(temp);
+            var al = that.iterable2Array(temp);
             al.sort(function(a, b) {
                 return a - b;
             });

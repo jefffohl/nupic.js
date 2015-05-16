@@ -137,16 +137,13 @@ SpatialPooler.prototype = {
 
         this.updateBookeepingVars(c, learn);
         var overlaps = this.calculateOverlap(c, inputVector);
-
         var boostedOverlaps = [];
         if (learn) {
             boostedOverlaps = ArrayUtils.multiply(c.getBoostFactors(), overlaps);
         } else {
             boostedOverlaps = overlaps;
         }
-
         var activeColumns = this.inhibitColumns(c, boostedOverlaps);
-
         if (learn) {
             this.adaptSynapses(c, inputVector, activeColumns);
             this.updateDutyCycles(c, overlaps, activeColumns);
@@ -164,6 +161,15 @@ SpatialPooler.prototype = {
         if (activeColumns.length > 0) {
             ArrayUtils.setIndexesTo(activeArray, activeColumns, 1);
         }
+        /*
+        var indices = [];
+        for (var i = 0; i < activeArray.length; i++) {
+            if (activeArray[i] === 1) {
+                indices.push(i);
+            }
+        }
+        console.log("activeArray indices: ", indices.toString());
+        */
     },
 
     /**
@@ -186,13 +192,13 @@ SpatialPooler.prototype = {
                 aboveZero.add(i);
             }
         }
-        var aZ = Array.from(aboveZero);
+        var aZ = ArrayUtils.iterable2Array(aboveZero);
         for (var i = 0; i < aZ.length; i++) {
             if (active.has(aZ[i])) {
                 active.delete(aZ[i]);
             }
         }
-        var l = Array.from(active);
+        var l = ArrayUtils.iterable2Array(active);
         l.sort(function(a, b) {
             return a - b;
         });

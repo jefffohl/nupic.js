@@ -247,8 +247,23 @@ Connections.prototype = {
      * Returns an array containing all of the {@link Cell}s.
      * @return
      */
-    getCells: function() { // Cell[](void)
-        return this.cells;
+    /**
+     * Returns an array containing the {@link Cell}s specified
+     * by the passed in indexes.
+     * 
+     * @param cellIndexes   indexes of the Cells to return
+     * @return
+     */
+    getCells: function(cellIndexes) { // Cell[](void)
+        if (arguments.length > 0 && !util.isNullOrUndefined(cellIndexes)) {
+            var retVal = [];
+            for (var i = 0; i < cellIndexes.length; i++) {
+                retVal[i] = this.cells[cellIndexes[i]];
+            }
+            return retVal;
+        } else {
+            return this.cells;
+        }
     },
 
     /**
@@ -257,21 +272,6 @@ Connections.prototype = {
      */
     setCells: function(cells) { // void
         this.cells = cells;
-    },
-
-    /**
-     * Returns an array containing the {@link Cell}s specified
-     * by the passed in indexes.
-     * 
-     * @param cellIndexes   indexes of the Cells to return
-     * @return
-     */
-    getCells: function(cellIndexes) { // Cell[](int[])
-        var retVal = [];
-        for (var i = 0; i < cellIndexes.length; i++) {
-            retVal[i] = this.cells[cellIndexes[i]];
-        }
-        return retVal;
     },
 
     /**
@@ -1192,6 +1192,7 @@ Connections.prototype = {
         }
 
         var retVal = this.synapses.get(segment);
+
         if (util.isNullOrUndefined(retVal)) {
             retVal = [];
             this.synapses.set(segment, retVal);
