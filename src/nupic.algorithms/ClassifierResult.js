@@ -21,7 +21,7 @@
  * time step T+1, as well as the associations between activation pattern T and
  * the classifications for T+3. The 'steps' constructor argument specifies the
  * list of time-steps you want.
- * 
+ *
  * @author Numenta
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
@@ -29,4 +29,4 @@
  */
 var ClassifierResult = function() {};
 
-ClassifierResult.prototype = {}
+ClassifierResult.prototype = {};

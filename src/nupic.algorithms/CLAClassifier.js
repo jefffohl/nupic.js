@@ -1,7 +1,7 @@
 /**
  * Container for the results of a classification computation by the
  * {@link CLAClassifier}
- * 
+ *
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  *
@@ -9,4 +9,4 @@
  */
 var CLAClassifier = function() {};
 
-CLAClassifier.prototype = {}
+CLAClassifier.prototype = {};

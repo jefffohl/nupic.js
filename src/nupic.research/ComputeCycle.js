@@ -27,89 +27,89 @@
  * data from previous compute cycles to derive new data for the current cycle
  * through a comparison between states of those different cycles, therefore
  * this state container is necessary.
- * 
+ *
  * @author David Ray
  * @author Ralf Seliger (port to JavaScript)
  * @author Jeff Fohl (port to JavaScript)
  */
 
-var Connections 	= require('../nupic/Connections.js');
-var Cell 			= require('../nupic.model/Cell.js');
-var Column 			= require('../nupic.model/Column.js');
-var DistalDendrite	= require('../nupic.model/DistalDendrite.js');
-var Synapse 		= require('../nupic.model/Synapse.js');
+var Connections = require('../nupic/Connections.js');
+var Cell = require('../nupic.model/Cell.js');
+var Column = require('../nupic.model/Column.js');
+var DistalDendrite = require('../nupic.model/DistalDendrite.js');
+var Synapse = require('../nupic.model/Synapse.js');
 
 
 var ComputeCycle = function() {
-	this.activeCells = new Set();
-	this.winnerCells = new Set();
-	this.predictiveCells = new Set();
-	this.predictedColumns = new Set();
-	this.activeSegments = new Set();
-	this.learningSegments = new Set();
-	this.activeSynapsesForSegment = new Map();
+  this.activeCells = new Set();
+  this.winnerCells = new Set();
+  this.predictiveCells = new Set();
+  this.predictedColumns = new Set();
+  this.activeSegments = new Set();
+  this.learningSegments = new Set();
+  this.activeSynapsesForSegment = new Map();
 };
 
 ComputeCycle.prototype = {
-    
-    /**
-     * Returns the current {@link Set} of active cells
-     * 
-     * @return  the current {@link Set} of active cells
-     */
-    activeCells : function () {
-        return this.activeCells;
-    },
-    
-    /**
-     * Returns the current {@link Set} of winner cells
-     * 
-     * @return  the current {@link Set} of winner cells
-     */
-    winnerCells : function () {
-        return this.winnerCells;
-    },
-    
-    /**
-     * Returns the {@link Set} of predictive cells.
-     * @return
-     */
-    predictiveCells : function () {
-        return this.predictiveCells;
-    },
-    
-    /**
-     * Returns the current {@link Set} of predicted columns
-     * 
-     * @return  the current {@link Set} of predicted columns
-     */
-    predictedColumns : function () {
-        return this.predictedColumns;
-    },
-    
-    /**
-     * Returns the Set of learning {@link DistalDendrite}s
-     * @return
-     */
-    learningSegments : function () {
-        return this.learningSegments;
-    },
-    
-    /**
-     * Returns the Set of active {@link DistalDendrite}s
-     * @return
-     */
-    activeSegments : function () {
-        return this.activeSegments;
-    },
-    
-    /**
-     * Returns the mapping of Segments to active synapses in t-1
-     * @return
-     */
-    activeSynapsesForSegment : function () {
-        return this.activeSynapsesForSegment;
-    }
+
+  /**
+   * Returns the current {@link Set} of active cells
+   *
+   * @return  the current {@link Set} of active cells
+   */
+  activeCells: function() {
+    return this.activeCells;
+  },
+
+  /**
+   * Returns the current {@link Set} of winner cells
+   *
+   * @return  the current {@link Set} of winner cells
+   */
+  winnerCells: function() {
+    return this.winnerCells;
+  },
+
+  /**
+   * Returns the {@link Set} of predictive cells.
+   * @return
+   */
+  predictiveCells: function() {
+    return this.predictiveCells;
+  },
+
+  /**
+   * Returns the current {@link Set} of predicted columns
+   *
+   * @return  the current {@link Set} of predicted columns
+   */
+  predictedColumns: function() {
+    return this.predictedColumns;
+  },
+
+  /**
+   * Returns the Set of learning {@link DistalDendrite}s
+   * @return
+   */
+  learningSegments: function() {
+    return this.learningSegments;
+  },
+
+  /**
+   * Returns the Set of active {@link DistalDendrite}s
+   * @return
+   */
+  activeSegments: function() {
+    return this.activeSegments;
+  },
+
+  /**
+   * Returns the mapping of Segments to active synapses in t-1
+   * @return
+   */
+  activeSynapsesForSegment: function() {
+    return this.activeSynapsesForSegment;
+  }
 
 };
 

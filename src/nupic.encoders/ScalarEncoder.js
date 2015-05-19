@@ -113,10 +113,13 @@
  * @author Ralf Seliger (port to JavaScript)
  */
 
-var Encoder     = require('./Encoder.js');
+var Encoder = require('./Encoder.js');
+var ArrayUtils = require('../nupic.util/ArrayUtils.js');
+var util = require('../cipun/util.js');
+var Tuple = require('../nupic.util/Tuple.js');
 
 var ScalarEncoder = function() {
-    Encoder.call(this);
+  Encoder.call(this);
 };
 
 ScalarEncoder.prototype = Object.create(Encoder.prototype);
@@ -129,14 +132,14 @@ ScalarEncoder.prototype.constructor = Encoder;
  * @return a {@code ScalarEncoder.Builder}
  */
 ScalarEncoder.prototype.builder = function() { // Encoder.Builder<ScalarEncoder.Builder, ScalarEncoder>(void)
-    return new ScalarEncoder.Builder();
+  return new ScalarEncoder.Builder();
 };
 
 /**
  * Returns true if the underlying encoder works on deltas
  */
 ScalarEncoder.prototype.isDelta = function() { // boolean(void)
-    return false;
+  return false;
 };
 
 /**
@@ -161,49 +164,49 @@ ScalarEncoder.prototype.isDelta = function() { // boolean(void)
  * forced -- if true, skip some safety checks (for compatibility reasons), default false
  */
 ScalarEncoder.prototype.init = function() { // void(void)
-    if (this.getW() % 2 == 0) {
-        throw new Error(
-            "W must be an odd number (to eliminate centering difficulty)");
+  if (this.getW() % 2 === 0) {
+    throw new Error(
+      "W must be an odd number (to eliminate centering difficulty)");
+  }
+
+  this.setHalfWidth((this.getW() - 1) / 2);
+
+  // For non-periodic inputs, padding is the number of bits "outside" the range,
+  // on each side. I.e. the representation of minval is centered on some bit, and
+  // there are "padding" bits to the left of that centered bit; similarly with
+  // bits to the right of the center bit of maxval
+  this.setPadding(this.isPeriodic() ? 0 : this.getHalfWidth());
+
+  if (!Number.isNaN(this.getMinVal()) && !Number.isNaN(this.getMaxVal())) {
+    if (this.getMinVal() >= this.getMaxVal()) {
+      throw new Error("maxVal must be > minVal");
     }
+    this.setRangeInternal(this.getMaxVal() - this.getMinVal());
+  }
 
-    this.setHalfWidth((this.getW() - 1) / 2);
+  // There are three different ways of thinking about the representation. Handle
+  // each case here.
+  this.initEncoder(this.getW(), this.getMinVal(), this.getMaxVal(), this.getN(), this.getRadius(), this.getResolution());
 
-    // For non-periodic inputs, padding is the number of bits "outside" the range,
-    // on each side. I.e. the representation of minval is centered on some bit, and
-    // there are "padding" bits to the left of that centered bit; similarly with
-    // bits to the right of the center bit of maxval
-    this.setPadding(this.isPeriodic() ? 0 : this.getHalfWidth());
+  //nInternal represents the output area excluding the possible padding on each side
+  this.setNInternal(this.getN() - 2 * this.getPadding());
 
-    if (!Number.isNaN(this.getMinVal()) && !Number.isNaN(this.getMaxVal())) {
-        if (this.getMinVal() >= this.getMaxVal()) {
-            throw new Error("maxVal must be > minVal");
-        }
-        this.setRangeInternal(this.getMaxVal() - this.getMinVal());
+  if (util.isNullOrUndefined(this.getName())) {
+    if ((this.getMinVal() % this.getMinVal()) > 0 ||
+      (this.getMaxVal() % this.getMaxVal()) > 0) {
+      this.setName("[" + this.getMinVal() + ":" + this.getMaxVal() + "]");
+    } else {
+      this.setName("[" + parseInt(this.getMinVal()) + ":" + parseInt(this.getMaxVal()) + "]");
     }
+  }
 
-    // There are three different ways of thinking about the representation. Handle
-    // each case here.
-    this.initEncoder(this.getW(), this.getMinVal(), this.getMaxVal(), this.getN(), this.getRadius(), this.getResolution());
-
-    //nInternal represents the output area excluding the possible padding on each side
-    this.setNInternal(this.getN() - 2 * this.getPadding());
-
-    if (util.isNullOrUndefined(this.getName())) {
-        if ((this.getMinVal() % this.getMinVal()) > 0 ||
-            (this.getMaxVal() % this.getMaxVal()) > 0) {
-            this.setName("[" + this.getMinVal() + ":" + this.getMaxVal() + "]");
-        } else {
-            this.setName("[" + parseInt(this.getMinVal()) + ":" + parseInt(this.getMaxVal()) + "]");
-        }
-    }
-
-    //Checks for likely mistakes in encoder settings
-    if (!this.isForced()) {
-        this.checkReasonableSettings();
-    }
-    var name = this.getName();
-    var val = name === "None" ? "[" + parseInt(this.getMinVal()) + ":" + parseInt(this.getMaxVal()) + "]" : name;
-    this.description.push(new Tuple(val, 0));
+  //Checks for likely mistakes in encoder settings
+  if (!this.isForced()) {
+    this.checkReasonableSettings();
+  }
+  var name = this.getName();
+  var val = name === "None" ? "[" + parseInt(this.getMinVal()) + ":" + parseInt(this.getMaxVal()) + "]" : name;
+  this.description.push(new Tuple(val, 0));
 };
 
 /**
@@ -218,41 +221,41 @@ ScalarEncoder.prototype.init = function() { // void(void)
  * @param resolution
  */
 ScalarEncoder.prototype.initEncoder = function(w, minVal, maxVal, n, radius, resolution) { // void(int, double, double, int, double, double)
-    if (n !== 0) {
-        if (!NUmber.isNaN(minVal) && !Number.isNaN(maxVal)) {
-            if (!this.isPeriodic()) {
-                this.setResolution(this.getRangeInternal() / (this.getN() - this.getW()));
-            } else {
-                this.setResolution(this.getRangeInternal() / this.getN());
-            }
+  if (n !== 0) {
+    if (!NUmber.isNaN(minVal) && !Number.isNaN(maxVal)) {
+      if (!this.isPeriodic()) {
+        this.setResolution(this.getRangeInternal() / (this.getN() - this.getW()));
+      } else {
+        this.setResolution(this.getRangeInternal() / this.getN());
+      }
 
-            this.setRadius(this.getW() * this.getResolution());
+      this.setRadius(this.getW() * this.getResolution());
 
-            if (this.isPeriodic()) {
-                this.setRange(this.getRangeInternal());
-            } else {
-                this.setRange(this.getRangeInternal() + this.getResolution());
-            }
-        }
-    } else {
-        if (radius !== 0) {
-            this.setResolution(this.getRadius() / w);
-        } else if (resolution !== 0) {
-            this.setRadius(this.getResolution() * w);
-        } else {
-            throw new Error(
-                "One of n, radius, resolution must be specified for a ScalarEncoder");
-        }
-
-        if (this.isPeriodic()) {
-            this.setRange(this.getRangeInternal());
-        } else {
-            this.setRange(this.getRangeInternal() + this.getResolution());
-        }
-
-        var nFloat = w * (this.getRange() / this.getRadius()) + 2 * this.getPadding();
-        this.setN(Math.ceil(nFloat));
+      if (this.isPeriodic()) {
+        this.setRange(this.getRangeInternal());
+      } else {
+        this.setRange(this.getRangeInternal() + this.getResolution());
+      }
     }
+  } else {
+    if (radius !== 0) {
+      this.setResolution(this.getRadius() / w);
+    } else if (resolution !== 0) {
+      this.setRadius(this.getResolution() * w);
+    } else {
+      throw new Error(
+        "One of n, radius, resolution must be specified for a ScalarEncoder");
+    }
+
+    if (this.isPeriodic()) {
+      this.setRange(this.getRangeInternal());
+    } else {
+      this.setRange(this.getRangeInternal() + this.getResolution());
+    }
+
+    var nFloat = w * (this.getRange() / this.getRadius()) + 2 * this.getPadding();
+    this.setN(Math.ceil(nFloat));
+  }
 };
 
 /**
@@ -265,45 +268,45 @@ ScalarEncoder.prototype.initEncoder = function(w, minVal, maxVal, n, radius, res
  * @return			an encoded array
  */
 ScalarEncoder.prototype.getFirstOnBit = function(input) { // Integer(double)
-    if (input === this.SENTINEL_VALUE_FOR_MISSING_DATA) {
-        return null;
-    } else {
-        if (input < this.getMinVal()) {
-            if (this.clipInput() && !this.isPeriodic()) {
-                this.LOGGER.info("Clipped input " + this.getName() + "=" + input + " to minval " + this.getMinVal());
-                input = this.getMinVal();
-            } else {
-                throw new Error("input (" + input + ") less than range (" +
-                    this.getMinVal() + " - " + this.getMaxVal());
-            }
-        }
+  if (input === this.SENTINEL_VALUE_FOR_MISSING_DATA) {
+    return null;
+  } else {
+    if (input < this.getMinVal()) {
+      if (this.clipInput() && !this.isPeriodic()) {
+        this.LOGGER.info("Clipped input " + this.getName() + "=" + input + " to minval " + this.getMinVal());
+        input = this.getMinVal();
+      } else {
+        throw new Error("input (" + input + ") less than range (" +
+          this.getMinVal() + " - " + this.getMaxVal());
+      }
     }
+  }
 
-    if (this.isPeriodic()) {
-        if (input >= getMaxVal()) {
-            throw new IllegalStateException("input (" + input + ") greater than periodic range (" +
-                getMinVal() + " - " + getMaxVal());
-        }
-    } else {
-        if (input > this.getMaxVal()) {
-            if (this.clipInput()) {
-                this.LOGGER.info("Clipped input " + this.getName() + "=" + input + " to maxval " + this.getMaxVal());
-                input = this.getMaxVal();
-            } else {
-                throw new Error("input (" + input + ") greater than periodic range (" +
-                    this.getMinVal() + " - " + this.getMaxVal());
-            }
-        }
+  if (this.isPeriodic()) {
+    if (input >= getMaxVal()) {
+      throw new IllegalStateException("input (" + input + ") greater than periodic range (" +
+        getMinVal() + " - " + getMaxVal());
     }
-
-    var centerbin;
-    if (this.isPeriodic()) {
-        centerbin = (input - this.getMinVal()) * this.getNInternal() / this.getRange() + this.getPadding();
-    } else {
-        centerbin = (input - this.getMinVal() + this.getResolution() / 2) / this.getResolution() + this.getPadding();
+  } else {
+    if (input > this.getMaxVal()) {
+      if (this.clipInput()) {
+        this.LOGGER.info("Clipped input " + this.getName() + "=" + input + " to maxval " + this.getMaxVal());
+        input = this.getMaxVal();
+      } else {
+        throw new Error("input (" + input + ") greater than periodic range (" +
+          this.getMinVal() + " - " + this.getMaxVal());
+      }
     }
+  }
 
-    return centerbin - this.getHalfWidth();
+  var centerbin;
+  if (this.isPeriodic()) {
+    centerbin = (input - this.getMinVal()) * this.getNInternal() / this.getRange() + this.getPadding();
+  } else {
+    centerbin = (input - this.getMinVal() + this.getResolution() / 2) / this.getResolution() + this.getPadding();
+  }
+
+  return centerbin - this.getHalfWidth();
 };
 
 /**
@@ -311,32 +314,32 @@ ScalarEncoder.prototype.getFirstOnBit = function(input) { // Integer(double)
  * @param c
  */
 ScalarEncoder.prototype.checkReasonableSettings = function() { // void(void)
-    if (this.getW() < 21) {
-        throw new Error(
-            "Number of bits in the SDR must be greater than 2, and recommended >= 21 (use forced=True to override)");
-    }
+  if (this.getW() < 21) {
+    throw new Error(
+      "Number of bits in the SDR must be greater than 2, and recommended >= 21 (use forced=True to override)");
+  }
 };
 
 /**
  * {@inheritDoc}
  */
 ScalarEncoder.prototype.getDecoderOutputFieldTypes = function() { // List<FieldMetaType>(void)
-    return ["float"];
+  return ["float"];
 };
 
 /**
  * Should return the output width, in bits.
  */
 ScalarEncoder.prototype.getWidth = function() { // int(void)
-    return this.getN();
+  return this.getN();
 };
 
 /**
  * {@inheritDoc}
  * NO-OP
  */
-ScalarEncoder.prototype.getBucketIndices = function(input) { // int[](Striing) 
-    return null;
+ScalarEncoder.prototype.getBucketIndices = function(input) { // int[](Striing)
+  return null;
 };
 
 /**
@@ -345,20 +348,20 @@ ScalarEncoder.prototype.getBucketIndices = function(input) { // int[](Striing)
  * @param	input
  */
 ScalarEncoder.prototype.getBucketIndices = function(input) { // int[](double)
-    var minbin = this.getFirstOnBit(input);
+  var minbin = this.getFirstOnBit(input);
 
-    //For periodic encoders, the bucket index is the index of the center bit
-    var bucketIdx;
-    if (this.isPeriodic()) {
-        bucketIdx = minbin + this.getHalfWidth();
-        if (bucketIdx < 0) {
-            bucketIdx += this.getN();
-        }
-    } else { //for non-periodic encoders, the bucket index is the index of the left bit
-        bucketIdx = minbin;
+  //For periodic encoders, the bucket index is the index of the center bit
+  var bucketIdx;
+  if (this.isPeriodic()) {
+    bucketIdx = minbin + this.getHalfWidth();
+    if (bucketIdx < 0) {
+      bucketIdx += this.getN();
     }
+  } else { //for non-periodic encoders, the bucket index is the index of the left bit
+    bucketIdx = minbin;
+  }
 
-    return [bucketIdx];
+  return [bucketIdx];
 };
 
 /**
@@ -370,42 +373,42 @@ ScalarEncoder.prototype.getBucketIndices = function(input) { // int[](double)
  * @param output 1-D array of same length returned by {@link Connections#getW()}
  */
 ScalarEncoder.prototype.encodeIntoArray = function(input, output) { // void(Double, int[])
-    if (Number.isNaN(input)) {
-        output.fill(0);
-        return;
+  if (Number.isNaN(input)) {
+    output.fill(0);
+    return;
+  }
+
+  var bucketVal = this.getFirstOnBit(input);
+  if (!util.isNullOrUndefined(bucketVal)) {
+    var bucketIdx = bucketVal;
+    output.fill(0);
+    var minbin = bucketIdx;
+    var maxbin = minbin + 2 * this.getHalfWidth();
+    if (this.isPeriodic()) {
+      if (maxbin >= this.getN()) {
+        var bottombins = maxbin - this.getN() + 1;
+        var range = ArrayUtils.range(0, bottombins);
+        ArrayUtils.setIndexesTo(output, range, 1);
+        maxbin = this.getN() - 1;
+      }
+      if (minbin < 0) {
+        var topbins = -minbin;
+        ArrayUtils.setIndexesTo(
+          output, ArrayUtils.range(this.getN() - topbins, this.getN()), 1);
+        minbin = 0;
+      }
     }
 
-    var bucketVal = this.getFirstOnBit(input);
-    if (!util.isNullOrUndefined(bucketVal)) {
-        var bucketIdx = bucketVal;
-        output.fill(0);
-        var minbin = bucketIdx;
-        var maxbin = minbin + 2 * this.getHalfWidth();
-        if (this.isPeriodic()) {
-            if (maxbin >= this.getN()) {
-                var bottombins = maxbin - this.getN() + 1;
-                var range = ArrayUtils.range(0, bottombins);
-                ArrayUtils.setIndexesTo(output, range, 1);
-                maxbin = this.getN() - 1;
-            }
-            if (minbin < 0) {
-                var topbins = -minbin;
-                ArrayUtils.setIndexesTo(
-                    output, ArrayUtils.range(this.getN() - topbins, this.getN()), 1);
-                minbin = 0;
-            }
-        }
+    ArrayUtils.setIndexesTo(output, ArrayUtils.range(minbin, maxbin + 1), 1);
+  }
 
-        ArrayUtils.setIndexesTo(output, ArrayUtils.range(minbin, maxbin + 1), 1);
-    }
-
-    this.LOGGER.trace("");
-    this.LOGGER.trace("input: " + input);
-    this.LOGGER.trace("range: " + this.getMinVal() + " - " + this.getMaxVal());
-    this.LOGGER.trace("n:" + this.getN() + "w:" + this.getW() + "resolution:" + this.getResolution() +
-        "radius:" + this.getRadius() + "periodic:" + this.isPeriodic());
-    this.LOGGER.trace("output: " + output.toString());
-    this.LOGGER.trace("input desc: " + this.decode(output, ""));
+  this.LOGGER.trace("");
+  this.LOGGER.trace("input: " + input);
+  this.LOGGER.trace("range: " + this.getMinVal() + " - " + this.getMaxVal());
+  this.LOGGER.trace("n:" + this.getN() + "w:" + this.getW() + "resolution:" + this.getResolution() +
+    "radius:" + this.getRadius() + "periodic:" + this.isPeriodic());
+  this.LOGGER.trace("output: " + output.toString());
+  this.LOGGER.trace("input desc: " + this.decode(output, ""));
 };
 
 /**
@@ -418,154 +421,154 @@ ScalarEncoder.prototype.encodeIntoArray = function(input, output) { // void(Doub
  * @return
  */
 ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeResult(int[], String)
-    // For now, we simply assume any top-down output greater than 0
-    // is ON. Eventually, we will probably want to incorporate the strength
-    // of each top-down output.
-    if (util.isNullOrUndefined(encoded) || encoded.length < 1) {
-        return null;
-    }
-    var tmpOutput = util.copyOf(encoded);
+  // For now, we simply assume any top-down output greater than 0
+  // is ON. Eventually, we will probably want to incorporate the strength
+  // of each top-down output.
+  if (util.isNullOrUndefined(encoded) || encoded.length < 1) {
+    return null;
+  }
+  var tmpOutput = util.copyOf(encoded);
 
-    // ------------------------------------------------------------------------
-    // First, assume the input pool is not sampled 100%, and fill in the
-    //  "holes" in the encoded representation (which are likely to be present
-    //  if this is a coincidence that was learned by the SP).
+  // ------------------------------------------------------------------------
+  // First, assume the input pool is not sampled 100%, and fill in the
+  //  "holes" in the encoded representation (which are likely to be present
+  //  if this is a coincidence that was learned by the SP).
 
-    // Search for portions of the output that have "holes"
-    var maxZerosInARow = this.getHalfWidth();
-    for (var i = 0; i < this.maxZerosInARow; i++) {
-        var searchStr = util.newArray(i + 3, 1);
-        ArrayUtils.setRangeTo(searchStr, 1, -1, 0);
-        var subLen = searchStr.length;
+  // Search for portions of the output that have "holes"
+  var maxZerosInARow = this.getHalfWidth();
+  for (var i = 0; i < this.maxZerosInARow; i++) {
+    var searchStr = util.newArray(i + 3, 1);
+    ArrayUtils.setRangeTo(searchStr, 1, -1, 0);
+    var subLen = searchStr.length;
 
-        // Does this search string appear in the output?
-        if (this.isPeriodic()) {
-            for (var j = 0; j < this.getN(); j++) {
-                var outputIndices = ArrayUtils.range(j, j + subLen);
-                outputIndices = ArrayUtils.modulo(outputIndices, this.getN());
-                if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, outputIndices))) {
-                    ArrayUtils.setIndexesTo(tmpOutput, outputIndices, 1);
-                }
-            }
-        } else {
-            for (var j = 0; j < this.getN() - subLen + 1; j++) {
-                if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, ArrayUtils.range(j, j + subLen)))) {
-                    ArrayUtils.setRangeTo(tmpOutput, j, j + subLen, 1);
-                }
-            }
+    // Does this search string appear in the output?
+    if (this.isPeriodic()) {
+      for (var j = 0; j < this.getN(); j++) {
+        var outputIndices = ArrayUtils.range(j, j + subLen);
+        outputIndices = ArrayUtils.modulo(outputIndices, this.getN());
+        if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, outputIndices))) {
+          ArrayUtils.setIndexesTo(tmpOutput, outputIndices, 1);
         }
-    }
-
-    this.LOGGER.trace("raw output:" + ArrayUtils.sub(encoded, ArrayUtils.range(0, this.getN())).toString());
-    this.LOGGER.trace("filtered output:" + tmpOutput.toString());
-
-    // ------------------------------------------------------------------------
-    // Find each run of 1's.
-    var nz = ArrayUtils.where(tmpOutput, function {
-        return n > 0;
-    });
-    var runs = []; //will be tuples of (startIdx, runLength)
-    nz.sort(function(a, b) {
-        return a - b;
-    });
-    var run = [nz[0], 1];
-    var i = 1;
-    while (i < nz.length) {
-        if (nz[i] === run[0] + run[1]) {
-            run[1] += 1;
-        } else {
-            runs.push(new Tuple(run[0], run[1]));
-            run = [nz[i], 1];
-        }
-        i += 1;
-    }
-    runs.push(new Tuple(run[0], run[1]));
-
-    // If we have a periodic encoder, merge the first and last run if they
-    // both go all the way to the edges
-    if (this.isPeriodic() && runs.length > 1) {
-        var l = runs.length - 1;
-        if (runs[0].get(0) === 0 && runs[l].get(0) + runs[l].get(1) === this.getN()) {
-            runs[l] = new Tuple(runs[l].get(0),
-                runs[l].get(1) + runs[0].get(1));
-            runs = runs.slice(1, runs.length);
-        }
-    }
-
-    // ------------------------------------------------------------------------
-    // Now, for each group of 1's, determine the "left" and "right" edges, where
-    // the "left" edge is inset by halfwidth and the "right" edge is inset by
-    // halfwidth.
-    // For a group of width w or less, the "left" and "right" edge are both at
-    // the center position of the group.
-    var left = 0;
-    var right = 0;
-    var ranges = [];
-    for (var tupleRun in runs) {
-        var start = tupleRun.get(0);
-        var runLen = tupleRun.get(1);
-        if (runLen <= this.getW()) {
-            left = right = start + runLen / 2;
-        } else {
-            left = start + this.getHalfWidth();
-            right = start + runLen - 1 - this.getHalfWidth();
-        }
-
-        var inMin, inMax;
-        // Convert to input space.
-        if (!this.isPeriodic()) {
-            inMin = (left - this.getPadding()) * this.getResolution() + this.getMinVal();
-            inMax = (right - this.getPadding()) * this.getResolution() + this.getMinVal();
-        } else {
-            inMin = (left - this.getPadding()) * this.getRange() / this.getNInternal() + this.getMinVal();
-            inMax = (right - this.getPadding()) * this.getRange() / this.getNInternal() + this.getMinVal();
-        }
-        // Handle wrap-around if periodic
-        if (this.isPeriodic()) {
-            if (inMin >= this.getMaxVal()) {
-                inMin -= this.getRange();
-                inMax -= this.getRange();
-            }
-        }
-
-        // Clip low end
-        if (inMin < this.getMinVal()) {
-            inMin = this.getMinVal();
-        }
-        if (inMax < this.getMinVal()) {
-            inMax = this.getMinVal();
-        }
-
-        // If we have a periodic encoder, and the max is past the edge, break into
-        // 	2 separate ranges
-        if (this.isPeriodic() && inMax >= this.getMaxVal()) {
-            ranges.push(new MinMax(inMin, this.getMaxVal()));
-            ranges.push(new MinMax(this.getMinVal(), inMax - this.getRange()));
-        } else {
-            if (inMax > this.getMaxVal()) {
-                inMax = this.getMaxVal();
-            }
-            if (inMin > this.getMaxVal()) {
-                inMin = this.getMaxVal();
-            }
-            ranges.push(new MinMax(inMin, inMax));
-        }
-    }
-
-    var desc = this.generateRangeDescription(ranges);
-    var fieldName;
-    // Return result
-    if (!util.isNullOrUndefined(parentFieldName) && !(parentFieldName.length === 0)) {
-        fieldName = parentFieldName + "." + this.getName();
+      }
     } else {
-        fieldName = this.getName();
+      for (var k = 0; k < this.getN() - subLen + 1; k++) {
+        if (util.equals(searchStr, ArrayUtils.sub(tmpOutput, ArrayUtils.range(k, k + subLen)))) {
+          ArrayUtils.setRangeTo(tmpOutput, k, k + subLen, 1);
+        }
+      }
+    }
+  }
+
+  this.LOGGER.trace("raw output:" + ArrayUtils.sub(encoded, ArrayUtils.range(0, this.getN())).toString());
+  this.LOGGER.trace("filtered output:" + tmpOutput.toString());
+
+  // ------------------------------------------------------------------------
+  // Find each run of 1's.
+  var nz = ArrayUtils.where(tmpOutput, function() {
+    return n > 0;
+  });
+  var runs = []; //will be tuples of (startIdx, runLength)
+  nz.sort(function(a, b) {
+    return a - b;
+  });
+  var run = [nz[0], 1];
+  var n = 1;
+  while (n < nz.length) {
+    if (nz[n] === run[0] + run[1]) {
+      run[1] += 1;
+    } else {
+      runs.push(new Tuple(run[0], run[1]));
+      run = [nz[n], 1];
+    }
+    n += 1;
+  }
+  runs.push(new Tuple(run[0], run[1]));
+
+  // If we have a periodic encoder, merge the first and last run if they
+  // both go all the way to the edges
+  if (this.isPeriodic() && runs.length > 1) {
+    var l = runs.length - 1;
+    if (runs[0].get(0) === 0 && runs[l].get(0) + runs[l].get(1) === this.getN()) {
+      runs[l] = new Tuple(runs[l].get(0),
+        runs[l].get(1) + runs[0].get(1));
+      runs = runs.slice(1, runs.length);
+    }
+  }
+
+  // ------------------------------------------------------------------------
+  // Now, for each group of 1's, determine the "left" and "right" edges, where
+  // the "left" edge is inset by halfwidth and the "right" edge is inset by
+  // halfwidth.
+  // For a group of width w or less, the "left" and "right" edge are both at
+  // the center position of the group.
+  var left = 0;
+  var right = 0;
+  var ranges = [];
+  for (var tupleRun in runs) {
+    var start = tupleRun.get(0);
+    var runLen = tupleRun.get(1);
+    if (runLen <= this.getW()) {
+      left = right = start + runLen / 2;
+    } else {
+      left = start + this.getHalfWidth();
+      right = start + runLen - 1 - this.getHalfWidth();
     }
 
-    var inner = new RangeList(ranges, desc);
-    var fieldsDict = new Map(); // new WeakMap();
-    fieldsDict.put(fieldName, inner);
+    var inMin, inMax;
+    // Convert to input space.
+    if (!this.isPeriodic()) {
+      inMin = (left - this.getPadding()) * this.getResolution() + this.getMinVal();
+      inMax = (right - this.getPadding()) * this.getResolution() + this.getMinVal();
+    } else {
+      inMin = (left - this.getPadding()) * this.getRange() / this.getNInternal() + this.getMinVal();
+      inMax = (right - this.getPadding()) * this.getRange() / this.getNInternal() + this.getMinVal();
+    }
+    // Handle wrap-around if periodic
+    if (this.isPeriodic()) {
+      if (inMin >= this.getMaxVal()) {
+        inMin -= this.getRange();
+        inMax -= this.getRange();
+      }
+    }
 
-    return new DecodeResult(fieldsDict, [fieldName]);
+    // Clip low end
+    if (inMin < this.getMinVal()) {
+      inMin = this.getMinVal();
+    }
+    if (inMax < this.getMinVal()) {
+      inMax = this.getMinVal();
+    }
+
+    // If we have a periodic encoder, and the max is past the edge, break into
+    // 	2 separate ranges
+    if (this.isPeriodic() && inMax >= this.getMaxVal()) {
+      ranges.push(new MinMax(inMin, this.getMaxVal()));
+      ranges.push(new MinMax(this.getMinVal(), inMax - this.getRange()));
+    } else {
+      if (inMax > this.getMaxVal()) {
+        inMax = this.getMaxVal();
+      }
+      if (inMin > this.getMaxVal()) {
+        inMin = this.getMaxVal();
+      }
+      ranges.push(new MinMax(inMin, inMax));
+    }
+  }
+
+  var desc = this.generateRangeDescription(ranges);
+  var fieldName;
+  // Return result
+  if (!util.isNullOrUndefined(parentFieldName) && parentFieldName.length !== 0) {
+    fieldName = parentFieldName + "." + this.getName();
+  } else {
+    fieldName = this.getName();
+  }
+
+  var inner = new RangeList(ranges, desc);
+  var fieldsDict = new Map(); // new WeakMap();
+  fieldsDict.put(fieldName, inner);
+
+  return new DecodeResult(fieldsDict, [fieldName]);
 };
 
 /**
@@ -574,19 +577,19 @@ ScalarEncoder.prototype.decode = function(encoded, parentFieldName) { // DecodeR
  * @param	ranges		A list of {@link MinMax}es.
  */
 ScalarEncoder.prototype.generateRangeDescription = function(ranges) { // String(List<MinMax>)
-    var desc = "";
-    var numRanges = ranges.length;
-    for (var i = 0; i < numRanges; i++) {
-        if (ranges[i].min() != ranges[i].max()) {
-            desc += ranges[i].min() + "-" + ranges[i].max();
-        } else {
-            desc += ranges[i].min();
-        }
-        if (i < numRanges - 1) {
-            desc += ", ";
-        }
+  var desc = "";
+  var numRanges = ranges.length;
+  for (var i = 0; i < numRanges; i++) {
+    if (ranges[i].min() != ranges[i].max()) {
+      desc += ranges[i].min() + "-" + ranges[i].max();
+    } else {
+      desc += ranges[i].min();
     }
-    return desc;
+    if (i < numRanges - 1) {
+      desc += ", ";
+    }
+  }
+  return desc;
 };
 
 /**
@@ -598,40 +601,40 @@ ScalarEncoder.prototype.generateRangeDescription = function(ranges) { // String(
  * @param c		the connections memory
  * @return		the internal topDownMapping
  */
-ScalarEncoder.prototype.getTopDownMapping: function() { // SparseObjectMatrix<int[]>(void)
+ScalarEncoder.prototype.getTopDownMapping = function() { // SparseObjectMatrix<int[]>(void)
 
-    if (util.isNullOrUndefined(this.topDownMapping)) {
-        //The input scalar value corresponding to each possible output encoding
-        if (this.isPeriodic()) {
-            this.setTopDownValues(
-                ArrayUtils.arange(this.getMinVal() + this.getResolution() / 2.0,
-                    this.getMaxVal(), this.getResolution()));
-        } else {
-            //Number of values is (max-min)/resolutions
-            this.setTopDownValues(
-                ArrayUtils.arange(this.getMinVal(), this.getMaxVal() + this.getResolution() / 2.0,
-                    this.getResolution()));
-        }
+  if (util.isNullOrUndefined(this.topDownMapping)) {
+    //The input scalar value corresponding to each possible output encoding
+    if (this.isPeriodic()) {
+      this.setTopDownValues(
+        ArrayUtils.arange(this.getMinVal() + this.getResolution() / 2.0,
+          this.getMaxVal(), this.getResolution()));
+    } else {
+      //Number of values is (max-min)/resolutions
+      this.setTopDownValues(
+        ArrayUtils.arange(this.getMinVal(), this.getMaxVal() + this.getResolution() / 2.0,
+          this.getResolution()));
     }
+  }
 
-    //Each row represents an encoded output pattern
-    var numCategories = this.getTopDownValues().length;
-    var topDownMapping = new SparseObjectMatrix([numCategories]);
-    this.setTopDownMapping(topDownMapping);
+  //Each row represents an encoded output pattern
+  var numCategories = this.getTopDownValues().length;
+  var topDownMapping = new SparseObjectMatrix([numCategories]);
+  this.setTopDownMapping(topDownMapping);
 
-    var topDownValues = this.getTopDownValues();
-    var outputSpace = util.newArray(this.getN(), 0);
-    var minVal = this.getMinVal();
-    var maxVal = this.getMaxVal();
-    for (var i = 0; i < numCategories; i++) {
-        var value = topDownValues[i];
-        value = Math.max(value, minVal);
-        value = Math.min(value, maxVal);
-        this.encodeIntoArray(value, outputSpace);
-        this.topDownMapping.set(i, util.copyOf(outputSpace, outputSpace.length));
-    }
+  var topDownValues = this.getTopDownValues();
+  var outputSpace = util.newArray(this.getN(), 0);
+  var minVal = this.getMinVal();
+  var maxVal = this.getMaxVal();
+  for (var i = 0; i < numCategories; i++) {
+    var value = topDownValues[i];
+    value = Math.max(value, minVal);
+    value = Math.min(value, maxVal);
+    this.encodeIntoArray(value, outputSpace);
+    this.topDownMapping.set(i, util.copyOf(outputSpace, outputSpace.length));
+  }
 
-    return topDownMapping;
+  return topDownMapping;
 };
 
 /**
@@ -641,9 +644,9 @@ ScalarEncoder.prototype.getTopDownMapping: function() { // SparseObjectMatrix<in
  * @return	a list of one input double
  */
 ScalarEncoder.prototype.getScalars = function(d) { // <S> TDoubleList(S)
-    var retVal = [];
-    retVal.push(d);
-    return retVal;
+  var retVal = [];
+  retVal.push(d);
+  return retVal;
 };
 
 /**
@@ -663,49 +666,49 @@ ScalarEncoder.prototype.getScalars = function(d) { // <S> TDoubleList(S)
  *        bucket.
  */
 ScalarEncoder.prototype.getBucketValues = function(t) { // <S> List<S>(Class<S>)
-    if (util.isNullOrUndefined(bucketValues)) {
-        var topDownMapping = this.getTopDownMapping();
-        var numBuckets = topDownMapping.getMaxIndex() + 1;
-        bucketValues = [];
-        for (var i = 0; i < numBuckets; i++) {
-            bucketValues.push(this.getBucketInfo([i])[0].get(1));
-        }
+  if (util.isNullOrUndefined(bucketValues)) {
+    var topDownMapping = this.getTopDownMapping();
+    var numBuckets = topDownMapping.getMaxIndex() + 1;
+    bucketValues = [];
+    for (var i = 0; i < numBuckets; i++) {
+      bucketValues.push(this.getBucketInfo([i])[0].get(1));
     }
-    return bucketValues;
+  }
+  return bucketValues;
 };
 
 /**
  * {@inheritDoc}
  */
 ScalarEncoder.prototype.getBucketInfo = function(buckets) { // List<EncoderResult>(int[])
-    var topDownMapping = this.getTopDownMapping();
+  var topDownMapping = this.getTopDownMapping();
 
-    //The "category" is simply the bucket index
-    var category = buckets[0];
-    var encoding = this.topDownMapping.getObject(category);
+  //The "category" is simply the bucket index
+  var category = buckets[0];
+  var encoding = this.topDownMapping.getObject(category);
 
-    //Which input value does this correspond to?
-    var inputVal;
-    if (this.isPeriodic()) {
-        inputVal = this.getMinVal() + this.getResolution() / 2 + category * this.getResolution();
-    } else {
-        inputVal = this.getMinVal() + category * this.getResolution();
-    }
+  //Which input value does this correspond to?
+  var inputVal;
+  if (this.isPeriodic()) {
+    inputVal = this.getMinVal() + this.getResolution() / 2 + category * this.getResolution();
+  } else {
+    inputVal = this.getMinVal() + category * this.getResolution();
+  }
 
-    return new EncoderResult(inputVal, inputVal, encoding);
+  return new EncoderResult(inputVal, inputVal, encoding);
 };
 
 /**
  * {@inheritDoc}
  */
 ScalarEncoder.prototype.topDownCompute = function(encoded) { // List<EncoderResult>(int[])
-    //Get/generate the topDown mapping table
-    var topDownMapping = this.getTopDownMapping();
+  //Get/generate the topDown mapping table
+  var topDownMapping = this.getTopDownMapping();
 
-    // See which "category" we match the closest.
-    var category = ArrayUtils.argmax(this.rightVecProd(topDownMapping, encoded));
+  // See which "category" we match the closest.
+  var category = ArrayUtils.argmax(this.rightVecProd(topDownMapping, encoded));
 
-    return this.getBucketInfo([category]);
+  return this.getBucketInfo([category]);
 };
 
 /**
@@ -715,26 +718,26 @@ ScalarEncoder.prototype.topDownCompute = function(encoded) { // List<EncoderResu
  * @return	a list of {@link Tuple}s
  */
 ScalarEncoder.prototype.dict = function() { // List<Tuple>(void)
-    var l = [];
-    l.push(new Tuple("maxval", this.getMaxVal()));
-    l.push(new Tuple("bucketValues", this.getBucketValues("double")));
-    l.push(new Tuple("nInternal", this.getNInternal()));
-    l.push(new Tuple("name", this.getName()));
-    l.push(new Tuple("minval", this.getMinVal()));
-    l.push(new Tuple("topDownValues", this.getTopDownValues.toString()));
-    l.push(new Tuple("clipInput", this.clipInput()));
-    l.push(new Tuple("n", this.getN()));
-    l.push(new Tuple("padding", this.getPadding()));
-    l.push(new Tuple("range", this.getRange()));
-    l.push(new Tuple("periodic", this.isPeriodic()));
-    l.push(new Tuple("radius", this.getRadius()));
-    l.push(new Tuple("w", this.getW()));
-    l.push(new Tuple("topDownMappingM", this.getTopDownMapping()));
-    l.push(new Tuple("halfwidth", this.getHalfWidth()));
-    l.push(new Tuple("resolution", this.getResolution()));
-    l.push(new Tuple("rangeInternal", this.getRangeInternal()));
+  var l = [];
+  l.push(new Tuple("maxval", this.getMaxVal()));
+  l.push(new Tuple("bucketValues", this.getBucketValues("double")));
+  l.push(new Tuple("nInternal", this.getNInternal()));
+  l.push(new Tuple("name", this.getName()));
+  l.push(new Tuple("minval", this.getMinVal()));
+  l.push(new Tuple("topDownValues", this.getTopDownValues.toString()));
+  l.push(new Tuple("clipInput", this.clipInput()));
+  l.push(new Tuple("n", this.getN()));
+  l.push(new Tuple("padding", this.getPadding()));
+  l.push(new Tuple("range", this.getRange()));
+  l.push(new Tuple("periodic", this.isPeriodic()));
+  l.push(new Tuple("radius", this.getRadius()));
+  l.push(new Tuple("w", this.getW()));
+  l.push(new Tuple("topDownMappingM", this.getTopDownMapping()));
+  l.push(new Tuple("halfwidth", this.getHalfWidth()));
+  l.push(new Tuple("resolution", this.getResolution()));
+  l.push(new Tuple("rangeInternal", this.getRangeInternal()));
 
-    return l;
+  return l;
 };
 
 /**
@@ -747,25 +750,27 @@ ScalarEncoder.prototype.dict = function() { // List<Tuple>(void)
  * @see ScalarEncoder.Builder#setStuff(int)
  */
 var Builder = function() {
-    Encoder.Builder.call(this);
+  Encoder.Builder.call(this);
 };
 
 Builder.prototype = Object.create(Encoder.Builder.prototype);
 Builder.prototype.constructor = Builder;
 
 Builder.prototype.build = function() {
-    //Must be instantiated so that super class can initialize
-    //boilerplate variables.
-    this.encoder = new ScalarEncoder();
+  //Must be instantiated so that super class can initialize
+  //boilerplate variables.
+  this.encoder = new ScalarEncoder();
 
-    //Call super class here
-    Encoder.Builder.build();
+  //Call super class here
+  Encoder.Builder.build();
 
-    ////////////////////////////////////////////////////////
-    //  Implementing classes would do setting of specific //
-    //  vars here together with any sanity checking       //
-    ////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////
+  //  Implementing classes would do setting of specific //
+  //  vars here together with any sanity checking       //
+  ////////////////////////////////////////////////////////
 
-    this.encoder.init();
-    return this.encoder;
+  this.encoder.init();
+  return this.encoder;
 };
+
+module.exports = ScalarEncoder;
