@@ -12,7 +12,6 @@
 var util            = require('../cipun/util.js');
 var Pool            = require('./Pool.js');
 var Segment         = require('./Segment.js');
-var ArrayUtils      = require('../nupic.util/ArrayUtils.js');
 
 var DistalDendrite = function(cell, index) {
     Segment.call(this);
@@ -137,7 +136,7 @@ DistalDendrite.prototype.pickCellsToLearnOn = function(c, numPickCells, prevWinn
     }
 
     numPickCells = Math.min(numPickCells, candidates.size);
-    var cands = ArrayUtils.iterable2Array(candidates);
+    var cands = util.iterable2Array(candidates);
     cands.sort(function(a, b) {
         return a.compareTo(b);
     });

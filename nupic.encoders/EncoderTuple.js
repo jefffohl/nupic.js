@@ -16,6 +16,10 @@
  * 					encoder encodes/decodes. (see  {@link ScalarEncoder#getFirstOnBit(
  * 						org.numenta.nupic.research.Connections, double)})
  */
+
+var util    = require('../cipun/util.js');
+var Tuple   = require('../nupic.util/Tuple.js');
+
 var EncoderTuple = function(name, e, offset) { // EncoderTuple(String, Encoder<?>, int)
     Tuple.call(this, [name, e, offset]);
 

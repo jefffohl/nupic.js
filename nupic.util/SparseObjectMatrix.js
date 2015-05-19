@@ -16,6 +16,7 @@
  */
 
 var SparseMatrix = require('./SparseMatrix.js');
+var util         = require('../cipun/util.js');
 
 var SparseObjectMatrix = function(dimensions, useColumnMajorOrdering) {
     SparseMatrix.call(this, dimensions, useColumnMajorOrdering);
@@ -64,7 +65,7 @@ SparseObjectMatrix.prototype.set = function() {
  * @return
  */
 SparseObjectMatrix.prototype.values = function() { // T[](void)
-    return ArrayUtils.iterable2Array(this.sparseMap.values());
+    return util.iterable2Array(this.sparseMap.values());
 };
 
 /**
@@ -91,7 +92,7 @@ SparseObjectMatrix.prototype.get = function(coordinates) { // T(int...)
  * @return  a sorted array of occupied indexes.
  */
 SparseObjectMatrix.prototype.getSparseIndices = function() { // int[](void)
-    return this.reverse(ArrayUtils.iterable2Array(this.sparseMap.keys()));
+    return this.reverse(util.iterable2Array(this.sparseMap.keys()));
 };
 
 /**

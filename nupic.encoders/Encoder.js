@@ -39,6 +39,10 @@
  * @author Ralf Seliger (port to JavaScript)
  */
 
+var LoggerFactory   = require('../cipun/LoggerFactory.js');
+var util            = require('../cipun/util.js');
+var ArrayUtils      = require('../nupic.util/ArrayUtils.js');
+
 var Encoder = function() {
     this.LOGGER = LoggerFactory.getLogger(); // Logger
 

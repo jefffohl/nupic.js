@@ -1,3 +1,5 @@
+ var poly = require('../nupic.util/polyfills.js');
+
  var util = {
     isNullOrUndefined : function(o) {
         if (o === null || o === undefined || typeof o === undefined) {
@@ -68,9 +70,9 @@
 
     /*
      * Returns an array of arbitrary dimensionality
-     * Examples: var a = makeArray([10]);	// returns 1D-Array, 10 empty slots
-     *           var a = makeArray([10], -1);	// returns 1D-Array, initialized to -1
-     *           var a = makeArray([2, 3, 4, 5]);	// returns 2x3x4x5 Array
+     * Examples: var a = newArray([10]);	// returns 1D-Array, 10 empty slots
+     *           var a = newArray([10], -1);	// returns 1D-Array, initialized to -1
+     *           var a = newArray([2, 3, 4, 5]);	// returns 2x3x4x5 Array
      */
     newArray : function(dims, init, arr) {
 
@@ -90,6 +92,31 @@
         }
 
         return arr;
+    },
+
+
+    /*
+     * Returns an array converted from an iterable object, such as a Set or Map.
+     */
+    iterable2Array : function(iterable) {
+        var arr = [];
+        for (var i of iterable) {
+            arr.push(i);
+        }
+        return arr;
+    },
+
+    /*
+    * For Sets, implements an addAll() method
+    */
+    setAddAll : function(set, items) {
+        if (!items.length) {
+            return;
+        }
+        for (var i = 0; i < items.length; i++) {
+            set.add(items[i]);
+        }
+        return set;
     },
 
     HashCode : function() {

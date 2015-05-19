@@ -113,6 +113,8 @@
  * @author Ralf Seliger (port to JavaScript)
  */
 
+var Encoder     = require('./Encoder.js');
+
 var ScalarEncoder = function() {
     Encoder.call(this);
 };

@@ -1,12 +1,12 @@
 
-var ArrayUtils = require('./nupic.util/ArrayUtils.js');
+var util = require('./cipun/util.js');
 
 var SetTest = function() {
     var set = new Set();
     for (var i = 0; i < 10; i++) {
         set.add(i);
     }
-    var arr = ArrayUtils.iterable2Array(set);
+    var arr = util.iterable2Array(set);
     console.log(JSON.stringify(arr));
 };
 
@@ -18,7 +18,7 @@ var MapTest = function() {
         };
         map.set(key,i);
     }
-    var arr = ArrayUtils.iterable2Array(map);
+    var arr = util.iterable2Array(map);
     console.log(JSON.stringify(arr));
 };
 

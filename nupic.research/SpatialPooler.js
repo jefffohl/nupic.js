@@ -192,13 +192,13 @@ SpatialPooler.prototype = {
                 aboveZero.add(i);
             }
         }
-        var aZ = ArrayUtils.iterable2Array(aboveZero);
+        var aZ = util.iterable2Array(aboveZero);
         for (var i = 0; i < aZ.length; i++) {
             if (active.has(aZ[i])) {
                 active.delete(aZ[i]);
             }
         }
-        var l = ArrayUtils.iterable2Array(active);
+        var l = util.iterable2Array(active);
         l.sort(function(a, b) {
             return a - b;
         });

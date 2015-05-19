@@ -14,6 +14,10 @@
  * @author cogmission
  * @author Ralf Seliger (port to JavaScript)
  */
+
+var Parameters = require('../nupic/Parameters.js');
+var util       = require('../cipun/util.js');
+
 var QuickTest = {
 
     main: function() { // void(String[])

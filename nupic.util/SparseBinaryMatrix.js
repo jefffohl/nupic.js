@@ -212,7 +212,7 @@ SparseBinaryMatrix.prototype.clearStatistics = function(row) { // void(int)
  * @return
  */
 SparseBinaryMatrix.prototype.values = function() { // int[](void)
-    return ArrayUtils.iterable2Array(this.sparseMap.values());
+    return util.iterable2Array(this.sparseMap.values());
 };
 
 SparseBinaryMatrix.prototype.getIntValue = function() {
@@ -250,7 +250,7 @@ SparseBinaryMatrix.prototype.getIntValue = function() {
  * @return  a sorted array of occupied indexes.
  */
 SparseBinaryMatrix.prototype.getSparseIndices = function() { // int[](void)
-    return this.reverse(ArrayUtils.iterable2Array(this.sparseMap.keys()));
+    return this.reverse(util.iterable2Array(this.sparseMap.keys()));
 };
 
 SparseBinaryMatrix.prototype.or = function() {

@@ -898,19 +898,11 @@ var ArrayUtils = {
      */
     unique: function(nums) { // int[](int[])
         var set = new Set(nums);
-        var result = this.iterable2Array(set);
+        var result = util.iterable2Array(set);
         result.sort(function(a, b) {
             return a - b;
         });
         return result;
-    },
-
-    iterable2Array : function(iterable) {
-        var arr = [];
-        for (var i of iterable) {
-            arr.push(i);
-        }
-        return arr;
     },
 
     /**
@@ -980,7 +972,7 @@ var ArrayUtils = {
                 }
                 temp.add(choices[randomIdx]);
             }
-            var al = that.iterable2Array(temp);
+            var al = util.iterable2Array(temp);
             al.sort(function(a, b) {
                 return a - b;
             });
