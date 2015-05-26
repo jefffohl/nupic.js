@@ -16,7 +16,8 @@
     "io": "~2.0.1"
   },
   "dependencies": {
-
+    "collections" : "~1.2.3",
+    "lodash" : "~3.9.3"
   },
   "devDependencies": {
     "colors": "~1.1.0",

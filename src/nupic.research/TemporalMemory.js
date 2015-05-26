@@ -65,12 +65,12 @@ TemporalMemory.prototype = {
     //Used as flag to determine if Column objects have been created.
     var colZero = matrix.getObject(0);
     for (var i = 0; i < numColumns; i++) {
-      var column = (colZero === null) ? new Column(cellsPerColumn, i) : matrix.getObject(i);
+      var column = (!colZero) ? new Column(cellsPerColumn, i) : matrix.getObject(i);
       for (var j = 0; j < cellsPerColumn; j++) {
-        cells[i * cellsPerColumn + j] = column.getCell(j);
+        cells[j * cellsPerColumn + j] = column.getCell(j);
       }
       //If columns have not been previously configured
-      if (colZero === null) {
+      if (!colZero) {
         matrix.set(i, column);
       }
     }
@@ -159,7 +159,7 @@ TemporalMemory.prototype = {
 
   activateCorrectlyPredictiveCells: function(c, prevPredictiveCells, activeColumns) {
     prevPredictiveCells.forEach(function(cell) {
-      column = cell.getParentColumns();
+      var column = cell.getParentColumn();
       if (activeColumns.has(column)) {
         c.activeCells.add(cell);
         c.winnerCells.add(cell);
@@ -312,6 +312,7 @@ TemporalMemory.prototype = {
         set.add(s);
       });
     });
+    return activesSynapses;
   },
 
   /**

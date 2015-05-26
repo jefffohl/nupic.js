@@ -60,3 +60,5 @@ EncoderTuple.prototype.getEncoder = function() { // Encoder<?>(void)
 EncoderTuple.prototype.getOffset = function() { // int(void)
   return this.get(2);
 };
+
+module.exports = EncoderTuple;

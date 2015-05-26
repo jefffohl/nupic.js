@@ -2,11 +2,6 @@
  * Just to be syntactically consistent with htm.java,
  * might be specialized in the future ...
  */
-var LoggerFactory = {
-  getLogger: function() {
-    return new Logger();
-  }
-};
 
 var Logger = function() {
   this.trace = function(arg) {
@@ -17,3 +12,11 @@ var Logger = function() {
     console.log(arg);
   };
 };
+
+var LoggerFactory = {
+  getLogger: function() {
+    return new Logger();
+  }
+};
+
+module.exports = LoggerFactory;

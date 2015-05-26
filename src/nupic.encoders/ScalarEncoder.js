@@ -123,7 +123,8 @@ var ScalarEncoder = function() {
 };
 
 ScalarEncoder.prototype = Object.create(Encoder.prototype);
-ScalarEncoder.prototype.constructor = Encoder;
+ScalarEncoder.prototype.constructor = ScalarEncoder;
+
 
 /**
  * Returns a builder for building ScalarEncoders.
@@ -131,10 +132,11 @@ ScalarEncoder.prototype.constructor = Encoder;
  *
  * @return a {@code ScalarEncoder.Builder}
  */
+/*
 ScalarEncoder.prototype.builder = function() { // Encoder.Builder<ScalarEncoder.Builder, ScalarEncoder>(void)
-  return new ScalarEncoder.Builder();
+  return new ScalarEncoderBuilder();
 };
-
+*/
 /**
  * Returns true if the underlying encoder works on deltas
  */
@@ -222,7 +224,7 @@ ScalarEncoder.prototype.init = function() { // void(void)
  */
 ScalarEncoder.prototype.initEncoder = function(w, minVal, maxVal, n, radius, resolution) { // void(int, double, double, int, double, double)
   if (n !== 0) {
-    if (!NUmber.isNaN(minVal) && !Number.isNaN(maxVal)) {
+    if (!Number.isNaN(minVal) && !Number.isNaN(maxVal)) {
       if (!this.isPeriodic()) {
         this.setResolution(this.getRangeInternal() / (this.getN() - this.getW()));
       } else {
@@ -740,37 +742,5 @@ ScalarEncoder.prototype.dict = function() { // List<Tuple>(void)
   return l;
 };
 
-/**
- * Returns a {@link EncoderBuilder} for constructing {@link ScalarEncoder}s
- *
- * The base class architecture is put together in such a way where boilerplate
- * initialization can be kept to a minimum for implementing subclasses, while avoiding
- * the mistake-proneness of extremely long argument lists.
- *
- * @see ScalarEncoder.Builder#setStuff(int)
- */
-var Builder = function() {
-  Encoder.Builder.call(this);
-};
-
-Builder.prototype = Object.create(Encoder.Builder.prototype);
-Builder.prototype.constructor = Builder;
-
-Builder.prototype.build = function() {
-  //Must be instantiated so that super class can initialize
-  //boilerplate variables.
-  this.encoder = new ScalarEncoder();
-
-  //Call super class here
-  Encoder.Builder.build();
-
-  ////////////////////////////////////////////////////////
-  //  Implementing classes would do setting of specific //
-  //  vars here together with any sanity checking       //
-  ////////////////////////////////////////////////////////
-
-  this.encoder.init();
-  return this.encoder;
-};
 
 module.exports = ScalarEncoder;

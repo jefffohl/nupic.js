@@ -1208,87 +1208,24 @@ Encoder.prototype = {
    */
   getDisplayWidth: function() { // int(void)
     return this.getWidth() + this.getDescription().length - 1;
-  }
+  },
 
-};
-
-/**
- * Base class for {@link Encoder} builders
- * @param <T>
- */
-Encoder.prototype.Builder = function() {
-  this.encoder = null;
-};
-
-Encoder.prototype.Builder.prototype = {
-  build: function() {
-    if (util.isNullOrUndefined(encoder)) {
-      throw new Error("Subclass did not instantiate builder type " +
-        "before calling this method!");
+  build: function(options) {
+    if (!options) {
+      throw new Error("Must supply buld options for this encoder.");
     }
-    this.encoder.setN(this.N);
-    this.encoder.setW(this.W);
-    this.encoder.setMinVal(this.MinVal);
-    this.encoder.setMaxVal(this.MaxVal);
-    this.encoder.setRadius(this.Radius);
-    this.encoder.setResolution(this.Resolution);
-    this.encoder.setPeriodic(this.Periodic);
-    this.encoder.setClipInput(this.ClipInput);
-    this.encoder.setForced(this.Forced);
-    this.encoder.setName(this.Name);
+    var optionKeys = ["n","w","minVal","maxVal","radius","resolution","periodic","clipInput","forced","name"];
+    for (var i = 0; i < optionKeys.length; i++) {
+      if (options[optionKeys[i]]) {
+        var setValue = "set" + optionKeys[i].charAt(0).toUpperCase() + optionKeys[i].slice(1);
+        this[setValue](options[optionKeys[i]]);
+      }
+    }
+    this.init();
 
-    return this.encoder;
-  },
-
-  n: function(N) {
-    this.N = N;
-    return this;
-  },
-
-  w: function(W) {
-    this.W = W;
-    return this;
-  },
-
-  minVal: function(MinVal) {
-    this.MinVal = MinVal;
-    return this;
-  },
-
-  maxVal: function(MaxVal) {
-    this.MaxVal = MaxVal;
-    return this;
-  },
-
-  radius: function(Radius) {
-    this.Radius = Radius;
-    return this;
-  },
-
-  resolution: function(Resolution) {
-    this.Resolution = Resolution;
-    return this;
-  },
-
-  periodic: function(Periodic) {
-    this.Periodic = Periodic;
-    return this;
-  },
-
-  clipInput: function(ClipInput) {
-    this.ClipInput = ClipInput;
-    return this;
-  },
-
-  forced: function(Forced) {
-    this.Forced = Forced;
-    return this;
-  },
-
-  name: function(Name) {
-    this.Name = Name;
     return this;
   }
+
 };
 
 module.exports = Encoder;

@@ -57,7 +57,7 @@ ComputeCycle.prototype = {
    *
    * @return  the current {@link Set} of active cells
    */
-  activeCells: function() {
+  getActiveCells: function() {
     return this.activeCells;
   },
 
@@ -66,7 +66,7 @@ ComputeCycle.prototype = {
    *
    * @return  the current {@link Set} of winner cells
    */
-  winnerCells: function() {
+  getWinnerCells: function() {
     return this.winnerCells;
   },
 
@@ -74,7 +74,7 @@ ComputeCycle.prototype = {
    * Returns the {@link Set} of predictive cells.
    * @return
    */
-  predictiveCells: function() {
+  getPredictiveCells: function() {
     return this.predictiveCells;
   },
 
@@ -83,7 +83,7 @@ ComputeCycle.prototype = {
    *
    * @return  the current {@link Set} of predicted columns
    */
-  predictedColumns: function() {
+  getPredictedColumns: function() {
     return this.predictedColumns;
   },
 
@@ -91,7 +91,7 @@ ComputeCycle.prototype = {
    * Returns the Set of learning {@link DistalDendrite}s
    * @return
    */
-  learningSegments: function() {
+  getLearningSegments: function() {
     return this.learningSegments;
   },
 
@@ -99,7 +99,7 @@ ComputeCycle.prototype = {
    * Returns the Set of active {@link DistalDendrite}s
    * @return
    */
-  activeSegments: function() {
+  getActiveSegments: function() {
     return this.activeSegments;
   },
 
@@ -107,7 +107,7 @@ ComputeCycle.prototype = {
    * Returns the mapping of Segments to active synapses in t-1
    * @return
    */
-  activeSynapsesForSegment: function() {
+  getActiveSynapsesForSegment: function() {
     return this.activeSynapsesForSegment;
   }
 
